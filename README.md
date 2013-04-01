@@ -45,11 +45,13 @@ in "where to build binaries" write
 [21:31:45] Davide Vitelaru: we need to save this convo :D
 [21:33:34] Nerijus: for this project, you will need to click "advanced" view in CMake and replace all /MD and /MDd C and CXX flags to /MT and /MTd
 [21:34:17] Nerijus: once you re-generate the project files, you can open this project in visual studio and build it
-[21:35:32] Nerijus: now, /key-escape/project folder should contain two more folders for external dependencies
-[21:36:10] Nerijus: they are 
-/key-escape/project/third-party-include
-/key-escape/project/third-party-lib
-[21:36:19] Nerijus: include contains header files for them
-[21:36:28] Nerijus: while lib contains compiled binaries
-[21:36:57] Nerijus: to save you the trouble of compiling i will just zip these two and send to you :)
-[21:37:40] Nerijus: ok, i need to save this conversation now
+
+Now, /key-escape/project folder should contain two more folders for external dependencies.
+They are::
+
+ /key-escape/project/third-party-include
+ /key-escape/project/third-party-lib
+ 
+Include contains header files for them, while lib contains compiled binaries.
+
+To save you the trouble of compiling i will just zip project-third-party.7z :)
