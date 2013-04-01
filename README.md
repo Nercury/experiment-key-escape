@@ -75,12 +75,9 @@ For this project, you will need to click "advanced" view in CMake and replace al
 
 Once you re-generate the project files, you can open this project in visual studio and build it.
 
-Now, /key-escape/project folder should contain two more folders for external dependencies.
-They are:
+You also will need to put third party libraries and headers into /key-escape/project folder:
 
-> /key-escape/project/third-party-include
-/key-escape/project/third-party-lib
- 
-Include contains header files for them, while lib contains compiled binaries.
+- /key-escape/project/third-party-include (header files)
+- /key-escape/project/third-party-lib (compiled binaries)
 
-To save you the trouble of compiling i will just zip project-third-party.7z :)
+To save you the trouble of compiling I will just zip these two into project-third-party.7z and will send them to you :)
