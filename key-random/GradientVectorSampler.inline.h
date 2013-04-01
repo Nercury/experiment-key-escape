@@ -2,21 +2,55 @@
 
 #include <key-random/GradientVectorSampler.h>
 
+// HELPER CODE TO GENERATE GRADIENT VECTORS FOR ALL DIMENSIONS
+
+template<class T, int AXIS>
+void key::random::gradient::generateGradientVectors(int excludeAxis, std::list<std::vector<T>> & genList, std::vector<T> & direction) {
+	if (excludeAxis == AXIS) {
+		direction[AXIS] = 0;
+		key::random::gradient::generateGradientVectors<T, AXIS - 1>(excludeAxis, genList, direction);
+	} else {
+		direction[AXIS] = 1;
+		key::random::gradient::generateGradientVectors<T, AXIS - 1>(excludeAxis, genList, direction);
+		direction[AXIS] = -1;
+		key::random::gradient::generateGradientVectors<T, AXIS - 1>(excludeAxis, genList, direction);
+	}
+}
+
+template<>
+inline void key::random::gradient::generateGradientVectors<float, 0>(int excludeAxis, std::list<std::vector<float>> & genList, std::vector<float> & direction) {
+	if (excludeAxis == 0) {
+		direction[0] = 0;
+		genList.push_back(direction);
+	} else {
+		direction[0] = 1;
+		genList.push_back(direction);
+		direction[0] = -1;
+		genList.push_back(direction);
+	}
+}
+
 // GENERAL CASE (EXCEPT 1 dimension)
 
-/*template<class T, int DIMENSIONS, int SAMPLE_SIZE>
+template<class T, int DIMENSIONS, int SAMPLE_SIZE>
 key::random::gradient::GradientVectorSampler<T, DIMENSIONS, SAMPLE_SIZE>::GradientVectorSampler() {
-	T vectors[4][4][3] = {
-		{{1,1,0},    {-1,1,0},    {1,-1,0},    {-1,-1,0}},
-		{{1,0,1},    {-1,0,1},    {1,0,-1},    {-1,0,-1}},
-		{{0,1,1},    {0,-1,1},    {0,1,-1},    {0,-1,-1}},
-		{{1,1,0},    {0,-1,1},    {-1,1,0},    {0,-1,-1}},
-	};
+	std::list<std::vector<T>> genList;
+	std::vector<T> direction;
 
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			gradients.push_back(Vector<T, 3>(vectors[i][j][0], vectors[i][j][1], vectors[i][j][2]));
+	for (int d = 0; d < DIMENSIONS; d++) {
+		direction.push_back(0);
+	}
+
+	for (int planeDim = 0; planeDim < DIMENSIONS; planeDim++) {
+		generateGradientVectors<T, DIMENSIONS - 1>(planeDim, genList, direction);
+	}
+
+	Vector<T, DIMENSIONS> vec;
+	for (auto it = genList.cbegin(); it != genList.cend(); ++it) {
+		for (int d = 0; d < DIMENSIONS; d++) {
+			vec[d] = (*it)[d];
 		}
+		gradients.push_back(vec);
 	}
 
 	sampleToGradientRatio =  gradients.size() / (float)SAMPLE_SIZE;
@@ -25,8 +59,13 @@ key::random::gradient::GradientVectorSampler<T, DIMENSIONS, SAMPLE_SIZE>::Gradie
 template<class T, int DIMENSIONS, int SAMPLE_SIZE>
 T key::random::gradient::GradientVectorSampler<T, DIMENSIONS, SAMPLE_SIZE>::grad(const int16_t hash, const T point[]) const {
 	size_t gradientNum = (int)(hash * sampleToGradientRatio);
-	return gradients.at(gradientNum) * Vector<T, 3>(point[0], point[1], point[2]);
-}*/
+	auto gradient = gradients.at(gradientNum);
+	T sum = 0;
+	for (int i = 0; i < DIMENSIONS; i++) {
+		sum += gradient[i] * point[i];
+	}
+	return sum;
+}
 
 // SPECIALIZE for 1 DIMENSION
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <list>
 #include <vector>
 
 #include <key-common/types.h>
@@ -10,6 +11,9 @@ namespace key
 	namespace random 
 	{	
 		namespace gradient {
+
+			template<class T, int AXIS>
+			void generateGradientVectors(int excludeAxis, std::list<std::vector<T>> & genList, std::vector<T> & direction);
 
 			template<class T, int DIMENSIONS, int SAMPLE_SIZE>
 			class GradientVectorSampler
