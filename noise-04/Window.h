@@ -14,15 +14,17 @@ namespace noise04 {
 		int16_t width;
 		int16_t height;
 
-		int offsetX;
+		float offsetX;
 		int offsetY;
 		int mouseX;
 		int mouseY;
 		float zoom;
 
+		int64_t previousTicks;
+
 		bool mouseLeftClicked;
 
-		key::random::PerlinNoise<float, 3, 256> noise;
+		key::random::PerlinNoise<float, 1, 256> noise1D;
 	public:
 		Window();
 		virtual ~Window();

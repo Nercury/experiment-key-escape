@@ -22,8 +22,18 @@ Window::Window()
 	mouseY = 0;
 	zoom = 10;
 
+	cout << "==========================================" << endl;
+	cout << endl;
+	cout << "This is 3D perlin noise example." << endl;
+	cout << "Third Z axis is plugged into time to get" << endl;
+	cout << "a slice of 3D space in 2D." << endl;
+	cout << endl;
+	cout << "==========================================" << endl;
+	cout << endl;
 	cout << "Use MOUSE to move view." << endl;
 	cout << "Use MOUSEWHEEL to zoom." << endl;
+	cout << endl;
+	cout << "==========================================" << endl;
 }
 
 Window::~Window() {

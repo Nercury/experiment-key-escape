@@ -14,6 +14,17 @@ namespace key
 			template<class T, int DIMENSIONS, int SAMPLE_SIZE>
 			class GradientVectorSampler
 			{
+			private:
+				std::vector<Vector<T, DIMENSIONS>> gradients;
+				float sampleToGradientRatio;
+			public:
+				GradientVectorSampler();
+				T grad(const int16_t hash, const T point[]) const;
+			};
+
+			template<class T, int SAMPLE_SIZE>
+			class GradientVectorSampler<T, 1, SAMPLE_SIZE>
+			{
 			public:
 				T grad(const int16_t hash, const T point[]) const;
 			};

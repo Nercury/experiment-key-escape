@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 	cout << "Using SDL " << SDL_MAJOR_VERSION << "." << SDL_MINOR_VERSION << "." << SDL_PATCHLEVEL << endl;
 
 	auto sdlWindow = SDL_CreateWindow(
-		"Noise 03",
+		"Noise 04",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
 		800, 600,
