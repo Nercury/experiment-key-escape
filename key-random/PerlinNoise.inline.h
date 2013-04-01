@@ -6,8 +6,8 @@
 
 #include <iostream>
 
-template<class T, class GradSamplerT, int DIMENSIONS, int AXIS>
-T key::random::util::PerlinNoiseDims<T, GradSamplerT, DIMENSIONS, AXIS>::finalLerp(const GradSamplerT & gradSampler, T point[], const int16_t hashes[]) const {
+template<class T, class GradSamplerT, int DIMENSIONS, int SAMPLE_SIZE, int AXIS>
+T key::random::util::PerlinNoiseDims<T, GradSamplerT, DIMENSIONS, SAMPLE_SIZE, AXIS>::finalLerp(const GradSamplerT & gradSampler, T point[], const int16_t hashes[]) const {
 	point[AXIS] -= 1;
 	auto b = previousDim.finalLerp(gradSampler, point, &hashes[util::DimPow<2, AXIS>::result]);
 	point[AXIS] += 1;
@@ -18,8 +18,8 @@ T key::random::util::PerlinNoiseDims<T, GradSamplerT, DIMENSIONS, AXIS>::finalLe
 	);
 }
 
-template<class T, class GradSamplerT, int DIMENSIONS>
-inline T key::random::util::PerlinNoiseDims<T, GradSamplerT, DIMENSIONS, 0>::finalLerp(const GradSamplerT & gradSampler, T point[], const int16_t hashes[]) const {
+template<class T, class GradSamplerT, int DIMENSIONS, int SAMPLE_SIZE>
+inline T key::random::util::PerlinNoiseDims<T, GradSamplerT, DIMENSIONS, SAMPLE_SIZE, 0>::finalLerp(const GradSamplerT & gradSampler, T point[], const int16_t hashes[]) const {
 	point[0] -= 1;
 	auto b = gradSampler.grad(hashes[1], point);
 	point[0] += 1;
@@ -30,36 +30,36 @@ inline T key::random::util::PerlinNoiseDims<T, GradSamplerT, DIMENSIONS, 0>::fin
 	);
 }
 
-template<class T, class GradSamplerT, int DIMENSIONS, int AXIS>
-void key::random::util::PerlinNoiseDims<T, GradSamplerT, DIMENSIONS, AXIS>::floorAtoB(const T a[], T b[]) const {
+template<class T, class GradSamplerT, int DIMENSIONS, int SAMPLE_SIZE, int AXIS>
+void key::random::util::PerlinNoiseDims<T, GradSamplerT, DIMENSIONS, SAMPLE_SIZE, AXIS>::floorAtoB(const T a[], T b[]) const {
 	previousDim.floorAtoB(a, b);
 	b[AXIS] = util::floor(a[AXIS]);
 }
 
-template<class T, class GradSamplerT, int DIMENSIONS>
-void key::random::util::PerlinNoiseDims<T, GradSamplerT, DIMENSIONS, 0>::floorAtoB(const T a[], T b[]) const {
+template<class T, class GradSamplerT, int DIMENSIONS, int SAMPLE_SIZE>
+void key::random::util::PerlinNoiseDims<T, GradSamplerT, DIMENSIONS, SAMPLE_SIZE, 0>::floorAtoB(const T a[], T b[]) const {
 	b[0] = util::floor(a[0]);
 }
 
-template<class T, class GradSamplerT, int DIMENSIONS, int AXIS>
-void key::random::util::PerlinNoiseDims<T, GradSamplerT, DIMENSIONS, AXIS>::setWrapPoint(const T p[], int16_t sampleWrapPoint[], const int16_t sampleSize) const {
-	previousDim.setWrapPoint(p, sampleWrapPoint, sampleSize);
-	sampleWrapPoint[AXIS] = (int32_t)p[AXIS] & (sampleSize - 1);
+template<class T, class GradSamplerT, int DIMENSIONS, int SAMPLE_SIZE, int AXIS>
+void key::random::util::PerlinNoiseDims<T, GradSamplerT, DIMENSIONS, SAMPLE_SIZE, AXIS>::setWrapPoint(const T p[], int16_t sampleWrapPoint[]) const {
+	previousDim.setWrapPoint(p, sampleWrapPoint);
+	sampleWrapPoint[AXIS] = util::wrapInRange<T, SAMPLE_SIZE>(p[AXIS]);
 }
 
-template<class T, class GradSamplerT, int DIMENSIONS>
-void key::random::util::PerlinNoiseDims<T, GradSamplerT, DIMENSIONS, 0>::setWrapPoint(const T p[], int16_t sampleWrapPoint[], const int16_t sampleSize) const {
-	sampleWrapPoint[0] = (int32_t)p[0] & (sampleSize - 1);
+template<class T, class GradSamplerT, int DIMENSIONS, int SAMPLE_SIZE>
+void key::random::util::PerlinNoiseDims<T, GradSamplerT, DIMENSIONS, SAMPLE_SIZE, 0>::setWrapPoint(const T p[], int16_t sampleWrapPoint[]) const {
+	sampleWrapPoint[0] = (int32_t)p[0] & (SAMPLE_SIZE - 1);
 }
 
-template<class T, class GradSamplerT, int DIMENSIONS, int AXIS>
-void key::random::util::PerlinNoiseDims<T, GradSamplerT, DIMENSIONS, AXIS>::setPtoPositionMinusP(T p[], const T position[]) const {
+template<class T, class GradSamplerT, int DIMENSIONS, int SAMPLE_SIZE, int AXIS>
+void key::random::util::PerlinNoiseDims<T, GradSamplerT, DIMENSIONS, SAMPLE_SIZE, AXIS>::setPtoPositionMinusP(T p[], const T position[]) const {
 	previousDim.setPtoPositionMinusP(p, position);
 	p[AXIS] = position[AXIS] - p[AXIS];
 }
 
-template<class T, class GradSamplerT, int DIMENSIONS>
-void key::random::util::PerlinNoiseDims<T, GradSamplerT, DIMENSIONS, 0>::setPtoPositionMinusP(T p[], const T position[]) const {
+template<class T, class GradSamplerT, int DIMENSIONS, int SAMPLE_SIZE>
+void key::random::util::PerlinNoiseDims<T, GradSamplerT, DIMENSIONS, SAMPLE_SIZE, 0>::setPtoPositionMinusP(T p[], const T position[]) const {
 	p[0] = position[0] - p[0];
 }
 
@@ -107,7 +107,7 @@ T key::random::PerlinNoise<T, DIMENSIONS, SAMPLE_SIZE>::get(const Vector<T, DIME
 	
 	// sample point is a point in our cube which is the size of our SAMPLE_SIZE
 	int16_t sampleWrapPoint[DIMENSIONS];
-	dims.setWrapPoint(p, sampleWrapPoint, SAMPLE_SIZE);
+	dims.setWrapPoint(p, sampleWrapPoint);
 
 	// generate hash values (A, B, AA, BA ... etc) for dimensions - 1
 	int16_t hashes[util::DimPow<2, DIMENSIONS>::result];

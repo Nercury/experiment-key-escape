@@ -11,6 +11,12 @@ namespace key
 	{	
 		namespace util {
 
+			template<class IntT>
+			int16_t wrapInteger(IntT kX, int16_t const kUpperBound);
+
+			template<class T, int SAMPLE_SIZE>
+			int16_t wrapInRange(T number);
+
 			template<int INDEX>
 			void recursive_hash_gen_assign(int16_t hashesA[], int16_t hashesB[], const int16_t sampleWrapPoint, const int16_t permutations[]);
 

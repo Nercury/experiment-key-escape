@@ -21,6 +21,30 @@ inline double key::random::util::floor<double>(const double value) {
 	return floor(value);
 }
 
+template<class T, int SAMPLE_SIZE>
+int16_t key::random::util::wrapInRange(T number) {
+	return key::random::util::wrapInteger((int32_t)number, SAMPLE_SIZE - 1);
+}
+
+template<>
+inline int16_t key::random::util::wrapInRange<float, 256>(float number) {
+	return (int32_t)number & 255;
+}
+
+template<>
+inline int16_t key::random::util::wrapInRange<double, 256>(double number) {
+	return (int64_t)number & 255;
+}
+
+template<class IntT>
+int16_t key::random::util::wrapInteger(IntT kX, int16_t const kUpperBound)
+{
+	int16_t range_size = kUpperBound + 1;
+	if (kX < 0)
+		kX += range_size * ((-kX) / range_size + 1);
+	return kX % range_size;
+}
+
 /*
 int A = p[X  ]+Y, AA = p[A]+Z, AB = p[A+1]+Z,      // HASH COORDINATES OF
     B = p[X+1]+Y, BA = p[B]+Z, BB = p[B+1]+Z;      // THE 8 CUBE CORNERS,
