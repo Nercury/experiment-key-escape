@@ -47,7 +47,7 @@ in "where to build binaries" write
 [21:34:17] Nerijus: once you re-generate the project files, you can open this project in visual studio and build it
 
 Now, /key-escape/project folder should contain two more folders for external dependencies.
-They are::
+They are:
 
  /key-escape/project/third-party-include
  /key-escape/project/third-party-lib
