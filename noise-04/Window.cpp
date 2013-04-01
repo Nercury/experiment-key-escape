@@ -17,10 +17,10 @@ Window::Window()
 {
 	mouseLeftClicked = false;
 	offsetX = 0.0f;
-	offsetY = -100.0f;
+	offsetY = -250.0f;
 	mouseX = 0;
 	mouseY = 0;
-	zoom = 0.02f;
+	zoom = 0.004f;
 
 	previousTicks = 0;
 
@@ -69,6 +69,8 @@ void Window::handleInput(const SDL_Event &event) {
 		//auto offsetWouldChangeY = offsetY * zoomChange;
 		offsetX = offsetWouldChangeX / 8 + mouseWouldChangeX / 8 / 8 - mouseX;
 		//offsetY = offsetWouldChangeY + mouseWouldChangeY - mouseY;
+
+		cout << "zoom "<< zoom<<endl;
 	}
 }
 
@@ -97,7 +99,7 @@ void Window::render() {
 	for (int x = 0; x <= this->width * 8; x+=1) {
 		// a lot of this * / + () code is just to get graph look nice and be movable/zoomable in the window
 		auto sample = noise1D.get(Vector<float, 1>((x + offsetX * 8) * zoom));
-		glVertex3f(x / 8.0f, sample * 300.0f - offsetY, 0.0f);
+		glVertex3f(x / 8.0f, sample * 150.0f - offsetY, 0.0f);
 	}
 	glEnd();
 

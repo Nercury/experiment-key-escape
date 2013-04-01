@@ -32,7 +32,7 @@ T key::random::gradient::GradientVectorSampler<T, DIMENSIONS, SAMPLE_SIZE>::grad
 
 template<class T, int SAMPLE_SIZE>
 T key::random::gradient::GradientVectorSampler<T, 1, SAMPLE_SIZE>::grad(const int16_t hash, const T point[]) const {
-	return hash / (float)SAMPLE_SIZE;
+	return (hash / (float)(SAMPLE_SIZE / 2)) - 1;
 }
 
 // SPECIALIZE for 3 DIMENSIONS

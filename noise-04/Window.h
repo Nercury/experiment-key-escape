@@ -24,7 +24,7 @@ namespace noise04 {
 
 		bool mouseLeftClicked;
 
-		key::random::PerlinNoise<float, 1, 256> noise1D;
+		key::random::PerlinNoise<float, 1, 512> noise1D;
 	public:
 		Window();
 		virtual ~Window();

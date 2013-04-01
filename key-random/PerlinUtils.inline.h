@@ -23,7 +23,7 @@ inline double key::random::util::floor<double>(const double value) {
 
 template<class T, int SAMPLE_SIZE>
 int16_t key::random::util::wrapInRange(T number) {
-	return key::random::util::wrapInteger((int32_t)number, SAMPLE_SIZE - 1);
+	return key::random::util::wrapInteger((int32_t)number, SAMPLE_SIZE);
 }
 
 template<>
@@ -39,9 +39,9 @@ inline int16_t key::random::util::wrapInRange<double, 256>(double number) {
 template<class IntT>
 int16_t key::random::util::wrapInteger(IntT kX, int16_t const kUpperBound)
 {
-	int16_t range_size = kUpperBound + 1;
+	int16_t range_size = kUpperBound;
 	if (kX < 0)
-		kX += range_size * ((-kX) / range_size + 1);
+		kX += range_size * ((-kX) / range_size);
 	return kX % range_size;
 }
 
@@ -78,9 +78,4 @@ inline void key::random::util::recursive_hash_gen<0>(int16_t hashes[], const int
 	hashes[0] = sampleWrapPoint[0];
 	hashes[1] = permutations[hashes[0] + 1];
 	hashes[0] = permutations[hashes[0]];
-}
-
-template<>
-inline void key::random::util::recursive_hash_gen<-1>(int16_t hashes[], const int16_t sampleWrapPoint[], const int16_t permutations[])
-{
 }
