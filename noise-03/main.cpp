@@ -17,6 +17,9 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
+	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
 	cout << "Using SDL " << SDL_MAJOR_VERSION << "." << SDL_MINOR_VERSION << "." << SDL_PATCHLEVEL << endl;
 
 	auto sdlWindow = SDL_CreateWindow(

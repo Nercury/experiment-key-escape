@@ -114,7 +114,7 @@ void Window::postResize(const int16_t width, const int16_t height) {
     glClearColor( 0.1f, 0.2f, 0.3f, 1.0f );
 
     /* Really Nice Perspective Calculations */
-    glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST );
+    glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
