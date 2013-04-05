@@ -1,6 +1,7 @@
 #include "Window.h"
 
 #include <memory>
+#include <iostream>
 
 #include <SDL2/SDL_opengl.h>
 #include <math.h>
@@ -13,7 +14,7 @@ using namespace key::random;
 using namespace noise04;
 
 Window::Window()
-	: noise1D(15)
+	: noise2D(18)
 {
 	mouseLeftClicked = false;
 	offsetX = 0.0f;
@@ -22,11 +23,10 @@ Window::Window()
 	mouseY = 0;
 	zoom = 0.004f;
 
-	previousTicks = 0;
-
 	cout << "==========================================" << endl;
 	cout << endl;
-	cout << "This is 1D noise example." << endl;
+	cout << "2D noise example. Y dimension is time" << endl;
+	cout << "which makes the line move." << endl;
 	cout << endl;
 	cout << "==========================================" << endl;
 	cout << endl;
@@ -70,7 +70,7 @@ void Window::handleInput(const SDL_Event &event) {
 		offsetX = offsetWouldChangeX / 8 + mouseWouldChangeX / 8 / 8 - mouseX;
 		//offsetY = offsetWouldChangeY + mouseWouldChangeY - mouseY;
 
-		cout << "zoom "<< zoom<<endl;
+		//cout << "zoom "<< zoom<<endl;
 	}
 }
 
@@ -91,19 +91,33 @@ void Window::render() {
 	glPointSize(1.0f);
 
 	auto ticks = SDL_GetTicks();
-	offsetX += (ticks - previousTicks) / 500.f;
 
-	glColor3f(1.0f, 1.0f, 1.0f);
+	glColor3f(1.0f, 0.9f, 0.9f);
+
+	glEnable( GL_POINT_SMOOTH );
+	glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);
+	glEnable(GL_BLEND);
+
+	glBegin(GL_POINTS);
+	for (int x = 0; x <= this->width; x+=2) {
+		for (int y = 0; y <= 300; y+=2) {
+			auto sample = noise2D.get(Vector<float, 2>((x + offsetX) * zoom * 8, (ticks / 500.0f) - y / 25.0));
+			glColor4f(sample, sample, sample, 1 - y / 300.0f);
+			glVertex3i(x, y - offsetY, 0.0f);
+		}
+	}
+	glEnd();
 
 	glBegin(GL_LINE_STRIP);
 	for (int x = 0; x <= this->width * 8; x+=1) {
 		// a lot of this * / + () code is just to get graph look nice and be movable/zoomable in the window
-		auto sample = noise1D.get(Vector<float, 1>((x + offsetX * 8) * zoom));
-		glVertex3f(x / 8.0f, sample * 150.0f - offsetY, 0.0f);
+		auto sample = noise2D.get(Vector<float, 2>((x + offsetX * 8) * zoom, ticks / 500.0f));
+		glColor4f(sample, sample, sample, 0.9f);
+		glVertex3f(x / 8.0f, -sample * 150.0f - offsetY, 0.0f);
 	}
 	glEnd();
 
-	previousTicks = ticks;
+
 }
 
 void Window::postResize(const int16_t width, const int16_t height) {
@@ -113,10 +127,10 @@ void Window::postResize(const int16_t width, const int16_t height) {
 	glShadeModel( GL_SMOOTH );
 
     /* Set the background black */
-    glClearColor( 0.1f, 0.2f, 0.3f, 1.0f );
+    glClearColor( 0, 0, 0, 1 );
 
     /* Really Nice Perspective Calculations */
-    glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
+    glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST );
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }

@@ -28,19 +28,3 @@ T key::random::FlatNoise<T, DIMENSIONS, SAMPLE_SIZE>::get(const Vector<T, DIMENS
 	}
 	return hash / (T)SAMPLE_SIZE;
 }
-
-/*template<class T, class GradientT, int DIMENSIONS, int SAMPLE_SIZE>
-T key::random::sampler::PermutationSampler<T, GradientT, DIMENSIONS, SAMPLE_SIZE>::sample(const Vector<T, DIMENSIONS> & position) const
-{
-	
-
-	//auto positionInWrapCube = position - lowerWrapPoint;
-
-	
-	//Vector<T, DIMENSIONS> fadeP;
-	//for (int i = 0; i < DIMENSIONS; i++) {
-	//	fadeP[i] = cossinePolynomialFade(p[i]);
-	//}
-	
-	
-}*/

@@ -12,7 +12,7 @@ namespace key
 			class PermutationSampler
 			{
 			public:
-				int16_t permutations[SAMPLE_SIZE * 2];
+				int32_t permutations[SAMPLE_SIZE * 2];
 
 				PermutationSampler(uint64_t seed);
 			};

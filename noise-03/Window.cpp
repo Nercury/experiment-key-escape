@@ -1,6 +1,7 @@
 #include "Window.h"
 
 #include <memory>
+#include <iostream>
 
 #include <SDL2/SDL_opengl.h>
 #include <math.h>
@@ -24,7 +25,7 @@ Window::Window()
 
 	cout << "==========================================" << endl;
 	cout << endl;
-	cout << "This is 3D perlin noise example." << endl;
+	cout << "This is 3D perlin simplex noise example." << endl;
 	cout << "Third Z axis is plugged into time to get" << endl;
 	cout << "a slice of 3D space in 2D." << endl;
 	cout << endl;
@@ -94,7 +95,7 @@ void Window::render() {
 	glBegin(GL_POINTS);
 	for (int x = 0; x <= this->width; x+=2) {
 		for (int y = 0; y <= this->height; y+=2) {
-			auto sample = noise.get(Vector<float, 3>(x + offsetX, y + offsetY, ticks / 900.0f * zoom) / zoom) / 2 + 0.5;
+			auto sample = noise.get((Vector<float, 3>(x + offsetX, y + offsetY, ticks / 900.0f * zoom) / zoom)) / 2 + 0.5;
 			glColor3f(sample, sample, sample);
 			glVertex3i(x, y, 0.0f);
 		}

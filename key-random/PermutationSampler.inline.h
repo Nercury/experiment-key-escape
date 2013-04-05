@@ -18,9 +18,3 @@ key::random::sampler::PermutationSampler<T, SAMPLE_SIZE>::PermutationSampler(uin
 		permutations[i + SAMPLE_SIZE] = permutations[i];
 	}
 }
-
-/*template<class T, class GradientT, int DIMENSIONS, int SAMPLE_SIZE>
-T key::random::sampler::PermutationSampler<T, GradientT, DIMENSIONS, SAMPLE_SIZE>::cossinePolynomialFade(T t)
-{
-	return t * t * t * (t * (t * 6 - 15) + 10);
-}*/

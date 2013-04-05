@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include <math.h>
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 
@@ -11,7 +12,6 @@ using namespace noise03;
 
 int main(int argc, char* argv[])
 {
-
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		cout << "Failed to initialize SDL: " << SDL_GetError() << endl;
 		return 0;

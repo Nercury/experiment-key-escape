@@ -1,6 +1,7 @@
 #include "Window.h"
 
 #include <memory>
+#include <iostream>
 
 #include <SDL2/SDL_opengl.h>
 #include <math.h>
@@ -69,7 +70,7 @@ void Window::handleInput(const SDL_Event &event) {
 		offsetX = offsetWouldChangeX / 8 + mouseWouldChangeX / 8 / 8 - mouseX;
 		//offsetY = offsetWouldChangeY + mouseWouldChangeY - mouseY;
 
-		cout << "zoom "<< zoom<<endl;
+		//cout << "zoom "<< zoom<<endl;
 	}
 }
 
@@ -93,13 +94,13 @@ void Window::render() {
 
 	glColor3f(1.0f, 0.9f, 0.9f);
 
-	glBegin(GL_LINE_STRIP);
-	for (int x = 0; x <= this->width * 8; x+=1) {
-		// a lot of this * / + () code is just to get graph look nice and be movable/zoomable in the window
-		auto sample = noise2D.get(Vector<float, 2>((x + offsetX * 8) * zoom, ticks / 500.0f));
-		glVertex3f(x / 8.0f, sample * 150.0f - offsetY, 0.0f);
-	}
-	glEnd();
+	glEnable( GL_POINT_SMOOTH );
+	glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);
+	glEnable(GL_BLEND);
+
+	
+
+
 }
 
 void Window::postResize(const int16_t width, const int16_t height) {
@@ -109,10 +110,10 @@ void Window::postResize(const int16_t width, const int16_t height) {
 	glShadeModel( GL_SMOOTH );
 
     /* Set the background black */
-    glClearColor( 0.1f, 0.2f, 0.3f, 1.0f );
+    glClearColor( 0, 0, 0, 1 );
 
     /* Really Nice Perspective Calculations */
-    glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
+    glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST );
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }

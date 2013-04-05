@@ -5,7 +5,7 @@
 #include <key-common/types.h>
 #include <SDL2/SDL.h>
 
-#include <key-random/PerlinNoise.h>
+#include <key-random/SimplexNoise.h>
 
 namespace noise05 {
 	class Window 
@@ -22,7 +22,7 @@ namespace noise05 {
 
 		bool mouseLeftClicked;
 
-		key::random::PerlinNoise<float, 2, 512> noise2D;
+		key::random::SimplexNoise<float, 2, 256> noise2D;
 	public:
 		Window();
 		virtual ~Window();
