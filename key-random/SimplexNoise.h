@@ -17,9 +17,11 @@ namespace key
 		{
 		private:
 			key::random::sampler::PermutationSampler<T, 256> permSampler;
-			int32_t mod12permutations[256 * 2];
+			int32_t mod32permutations[256 * 2];
 			// The gradients are the midpoints of the vertices of a cube.
 			static const int32_t grad4[32][4];
+			// A lookup table to traverse the simplex around a given point in 4D.
+			static const int32_t simplex[64][4];
 		public:
 			SimplexNoise(int64_t seed);
 			T get(const Vector<T, 4> & position) const;

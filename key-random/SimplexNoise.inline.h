@@ -8,7 +8,7 @@
 template<class T>
 key::random::SimplexNoise<T, 4, 256>::SimplexNoise(int64_t seed) : permSampler(seed) {
 	for (int i = 0; i < 256 * 2; i++) {
-		mod12permutations[i] = permSampler.permutations[i] % 12;
+		mod32permutations[i] = permSampler.permutations[i] % 32;
 	}
 }
 
@@ -24,11 +24,24 @@ const int32_t key::random::SimplexNoise<T, 4, 256>::grad4[32][4] = {
     {-1,1,1,0}, {-1,1,-1,0}, {-1,-1,1,0}, {-1,-1,-1,0}
 };
 
+			
+template<class T>
+const int32_t key::random::SimplexNoise<T, 4, 256>::simplex[64][4] = {
+    {0,1,2,3},{0,1,3,2},{0,0,0,0},{0,2,3,1},{0,0,0,0},{0,0,0,0},{0,0,0,0},{1,2,3,0},
+    {0,2,1,3},{0,0,0,0},{0,3,1,2},{0,3,2,1},{0,0,0,0},{0,0,0,0},{0,0,0,0},{1,3,2,0},
+    {0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},
+    {1,2,0,3},{0,0,0,0},{1,3,0,2},{0,0,0,0},{0,0,0,0},{0,0,0,0},{2,3,0,1},{2,3,1,0},
+    {1,0,2,3},{1,0,3,2},{0,0,0,0},{0,0,0,0},{0,0,0,0},{2,0,3,1},{0,0,0,0},{2,1,3,0},
+    {0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},
+    {2,0,1,3},{0,0,0,0},{0,0,0,0},{0,0,0,0},{3,0,1,2},{3,0,2,1},{0,0,0,0},{3,1,2,0},
+    {2,1,0,3},{0,0,0,0},{0,0,0,0},{0,0,0,0},{3,1,0,2},{0,0,0,0},{3,2,0,1},{3,2,1,0}
+};
+
 template<class T>
 T key::random::SimplexNoise<T, 4, 256>::get(const Vector<T, 4> & position) const {
 	// The skewing and unskewing factors are hairy again for the 4D case
-    T F4 = (sqrtf(5.0)-1.0)/4.0;
-    T G4 = (5.0-sqrtf(5.0))/20.0;
+    T F4 = (sqrtf(5.0f)-1.0f)/4.0f;
+    T G4 = (5.0f-sqrtf(5.0f))/20.0f;
     T n0, n1, n2, n3, n4; // Noise contributions from the five corners
 
     // Skew the (x,y,z,w) space to determine which cell of 24 simplices we're in
@@ -93,98 +106,98 @@ T key::random::SimplexNoise<T, 4, 256>::get(const Vector<T, 4> & position) const
     T y1 = y0 - j1 + G4;
     T z1 = z0 - k1 + G4;
     T w1 = w0 - l1 + G4;
-    T x2 = x0 - i2 + 2.0*G4; // Offsets for third corner in (x,y,z,w) coords
-    T y2 = y0 - j2 + 2.0*G4;
-    T z2 = z0 - k2 + 2.0*G4;
-    T w2 = w0 - l2 + 2.0*G4;
-    T x3 = x0 - i3 + 3.0*G4; // Offsets for fourth corner in (x,y,z,w) coords
-    T y3 = y0 - j3 + 3.0*G4;
-    T z3 = z0 - k3 + 3.0*G4;
-    T w3 = w0 - l3 + 3.0*G4;
-    T x4 = x0 - 1.0 + 4.0*G4; // Offsets for last corner in (x,y,z,w) coords
-    T y4 = y0 - 1.0 + 4.0*G4;
-    T z4 = z0 - 1.0 + 4.0*G4;
-    T w4 = w0 - 1.0 + 4.0*G4;
+    T x2 = x0 - i2 + 2.0f*G4; // Offsets for third corner in (x,y,z,w) coords
+    T y2 = y0 - j2 + 2.0f*G4;
+    T z2 = z0 - k2 + 2.0f*G4;
+    T w2 = w0 - l2 + 2.0f*G4;
+    T x3 = x0 - i3 + 3.0f*G4; // Offsets for fourth corner in (x,y,z,w) coords
+    T y3 = y0 - j3 + 3.0f*G4;
+    T z3 = z0 - k3 + 3.0f*G4;
+    T w3 = w0 - l3 + 3.0f*G4;
+    T x4 = x0 - 1.0f + 4.0f*G4; // Offsets for last corner in (x,y,z,w) coords
+    T y4 = y0 - 1.0f + 4.0f*G4;
+    T z4 = z0 - 1.0f + 4.0f*G4;
+    T w4 = w0 - 1.0f + 4.0f*G4;
 
     // Work out the hashed gradient indices of the five simplex corners
     int32_t ii = i & 255;
     int32_t jj = j & 255;
     int32_t kk = k & 255;
     int32_t ll = l & 255;
-    int32_t gi0 = permSampler.permutations[
+    int32_t gi0 = mod32permutations[
 		ii+permSampler.permutations[
 			jj+permSampler.permutations[
 				kk+permSampler.permutations[ll]
 			]
 		]
-	] % 32;
-    int32_t gi1 = permSampler.permutations[
+	];
+    int32_t gi1 = mod32permutations[
 		ii+i1+permSampler.permutations[
 			jj+j1+permSampler.permutations[
 				kk+k1+permSampler.permutations[ll+l1]
 			]
 		]
-	] % 32;
-    int32_t gi2 = permSampler.permutations[
+	];
+    int32_t gi2 = mod32permutations[
 		ii+i2+permSampler.permutations[
 			jj+j2+permSampler.permutations[
 				kk+k2+permSampler.permutations[ll+l2]
 			]
 		]
-	] % 32;
-    int32_t gi3 = permSampler.permutations[
+	];
+    int32_t gi3 = mod32permutations[
 		ii+i3+permSampler.permutations[
 			jj+j3+permSampler.permutations[
 				kk+k3+permSampler.permutations[ll+l3]
 			]
 		]
-	] % 32;
-    int32_t gi4 = permSampler.permutations[
+	];
+    int32_t gi4 = mod32permutations[
 		ii+1+permSampler.permutations[
 			jj+1+permSampler.permutations[
 				kk+1+permSampler.permutations[ll+1]
 			]
 		]
-	] % 32;
+	];
 
     // Calculate the contribution from the five corners
-    T t0 = 0.6 - x0*x0 - y0*y0 - z0*z0 - w0*w0;
-    if(t0<0) n0 = 0.0;
+    T t0 = 0.6f - x0*x0 - y0*y0 - z0*z0 - w0*w0;
+    if(t0<0) n0 = 0.0f;
     else {
         t0 *= t0;
         n0 = t0 * t0 * util::vdot4<T>(grad4[gi0], x0, y0, z0, w0);
     }
 
-    T t1 = 0.6 - x1*x1 - y1*y1 - z1*z1 - w1*w1;
-    if(t1<0) n1 = 0.0;
+    T t1 = 0.6f - x1*x1 - y1*y1 - z1*z1 - w1*w1;
+    if(t1<0) n1 = 0.0f;
     else {
         t1 *= t1;
         n1 = t1 * t1 * util::vdot4<T>(grad4[gi1], x1, y1, z1, w1);
     }
 
-    T t2 = 0.6 - x2*x2 - y2*y2 - z2*z2 - w2*w2;
-    if(t2<0) n2 = 0.0;
+    T t2 = 0.6f - x2*x2 - y2*y2 - z2*z2 - w2*w2;
+    if(t2<0) n2 = 0.0f;
     else {
         t2 *= t2;
         n2 = t2 * t2 * util::vdot4<T>(grad4[gi2], x2, y2, z2, w2);
     }
 
-    T t3 = 0.6 - x3*x3 - y3*y3 - z3*z3 - w3*w3;
-    if(t3<0) n3 = 0.0;
+    T t3 = 0.6f - x3*x3 - y3*y3 - z3*z3 - w3*w3;
+    if(t3<0) n3 = 0.0f;
     else {
         t3 *= t3;
         n3 = t3 * t3 * util::vdot4<T>(grad4[gi3], x3, y3, z3, w3);
     }
 
-    T t4 = 0.6 - x4*x4 - y4*y4 - z4*z4 - w4*w4;
-    if(t4<0) n4 = 0.0;
+    T t4 = 0.6f - x4*x4 - y4*y4 - z4*z4 - w4*w4;
+    if(t4<0) n4 = 0.0f;
     else {
         t4 *= t4;
         n4 = t4 * t4 * util::vdot4<T>(grad4[gi4], x4, y4, z4, w4);
     }
 
     // Sum up and scale the result to cover the range [-1,1]
-    return 27.0 * (n0 + n1 + n2 + n3 + n4);
+    return 27.0f * (n0 + n1 + n2 + n3 + n4);
 }
 
 template<class T>
@@ -398,72 +411,3 @@ T key::random::SimplexNoise<T, 2, 256>::get(const Vector<T, 2> & position) const
     // The result is scaled to return values in the interval [-1,1].
     return 70.0f * (n0 + n1 + n2);
 }
-
-/*
-float raw_noise_2d( const float x, const float y ) {
-    // Noise contributions from the three corners
-    float n0, n1, n2;
-
-    // Skew the input space to determine which simplex cell we're in
-    float F2 = 0.5 * (sqrtf(3.0) - 1.0);
-    // Hairy factor for 2D
-    float s = (x + y) * F2;
-    int i = floorf( x + s );
-    int j = floorf( y + s );
-
-    float G2 = (3.0 - sqrtf(3.0)) / 6.0;
-    float t = (i + j) * G2;
-    // Unskew the cell origin back to (x,y) space
-    float X0 = i-t;
-    float Y0 = j-t;
-    // The x,y distances from the cell origin
-    float x0 = x-X0;
-    float y0 = y-Y0;
-
-    // For the 2D case, the simplex shape is an equilateral triangle.
-    // Determine which simplex we are in.
-    int i1, j1; // Offsets for second (middle) corner of simplex in (i,j) coords
-    if(x0>y0) {i1=1; j1=0;} // lower triangle, XY order: (0,0)->(1,0)->(1,1)
-    else {i1=0; j1=1;} // upper triangle, YX order: (0,0)->(0,1)->(1,1)
-
-    // A step of (1,0) in (i,j) means a step of (1-c,-c) in (x,y), and
-    // a step of (0,1) in (i,j) means a step of (-c,1-c) in (x,y), where
-    // c = (3-sqrt(3))/6
-    float x1 = x0 - i1 + G2; // Offsets for middle corner in (x,y) unskewed coords
-    float y1 = y0 - j1 + G2;
-    float x2 = x0 - 1.0 + 2.0 * G2; // Offsets for last corner in (x,y) unskewed coords
-    float y2 = y0 - 1.0 + 2.0 * G2;
-
-    // Work out the hashed gradient indices of the three simplex corners
-    int ii = i & 255;
-    int jj = j & 255;
-    int gi0 = perm[ii+perm[jj]] % 12;
-    int gi1 = perm[ii+i1+perm[jj+j1]] % 12;
-    int gi2 = perm[ii+1+perm[jj+1]] % 12;
-
-    // Calculate the contribution from the three corners
-    float t0 = 0.5 - x0*x0-y0*y0;
-    if(t0<0) n0 = 0.0;
-    else {
-        t0 *= t0;
-        n0 = t0 * t0 * dot(grad3[gi0], x0, y0); // (x,y) of grad3 used for 2D gradient
-    }
-
-    float t1 = 0.5 - x1*x1-y1*y1;
-    if(t1<0) n1 = 0.0;
-    else {
-        t1 *= t1;
-        n1 = t1 * t1 * dot(grad3[gi1], x1, y1);
-    }
-
-    float t2 = 0.5 - x2*x2-y2*y2;
-    if(t2<0) n2 = 0.0;
-    else {
-        t2 *= t2;
-        n2 = t2 * t2 * dot(grad3[gi2], x2, y2);
-    }
-
-    // Add contributions from each corner to get the final noise value.
-    // The result is scaled to return values in the interval [-1,1].
-    return 70.0 * (n0 + n1 + n2);
-}*/
