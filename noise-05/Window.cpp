@@ -2,9 +2,10 @@
 
 #include <memory>
 #include <iostream>
+#include <cmath>
 
-#include <SDL2/SDL_opengl.h>
-#include <math.h>
+#include <key-opengl/gl.h>
+#include <key-opengl/util.h>
 
 #include <key-math/Vector3.h>
 #include <key-math/Matrix.h>
@@ -14,7 +15,7 @@ using namespace key::random;
 using namespace noise05;
 
 Window::Window()
-	: noise2D(18)
+	: noise4D(18)
 {
 	mouseLeftClicked = false;
 	offsetX = 0.0f;
@@ -25,8 +26,8 @@ Window::Window()
 
 	cout << "==========================================" << endl;
 	cout << endl;
-	cout << "2D noise example. Y dimension is time" << endl;
-	cout << "which makes the line move." << endl;
+	cout << "4D noise example. 4th dimension is time" << endl;
+	cout << "which makes the stuff move." << endl;
 	cout << endl;
 	cout << "==========================================" << endl;
 	cout << endl;
@@ -81,11 +82,12 @@ void Window::update(const float delta) {
 void Window::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// GUI
 	glViewport( 0, 0, this->width, this->height );
 	glMatrixMode( GL_PROJECTION );
-	glLoadIdentity();
-	glOrtho(0, this->width, this->height, 0, 1, -1);
+	glLoadIdentity( );
+	key::opengl::gldPerspective( 90, this->width / (float)this->height, 1.0f, 64000.0f );
+
+	// enter world
 	glMatrixMode( GL_MODELVIEW );
 
 	glPointSize(1.0f);

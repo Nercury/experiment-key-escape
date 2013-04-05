@@ -1,7 +1,7 @@
 #include <iostream>
+#include <cmath>
 
-#include <math.h>
-#include <GL/glew.h>
+#include <key-opengl/gl.h>
 #include <SDL2/SDL.h>
 
 #include <key-common/types.h>

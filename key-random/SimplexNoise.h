@@ -13,6 +13,19 @@ namespace key
 		class SimplexNoise { };
 
 		template<class T>
+		class SimplexNoise<T, 4, 256>
+		{
+		private:
+			key::random::sampler::PermutationSampler<T, 256> permSampler;
+			int32_t mod12permutations[256 * 2];
+			// The gradients are the midpoints of the vertices of a cube.
+			static const int32_t grad4[32][4];
+		public:
+			SimplexNoise(int64_t seed);
+			T get(const Vector<T, 4> & position) const;
+		};
+
+		template<class T>
 		class SimplexNoise<T, 3, 256>
 		{
 		private:

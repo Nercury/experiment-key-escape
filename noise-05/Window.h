@@ -22,7 +22,7 @@ namespace noise05 {
 
 		bool mouseLeftClicked;
 
-		key::random::SimplexNoise<float, 2, 256> noise2D;
+		key::random::SimplexNoise<float, 4, 256> noise4D;
 	public:
 		Window();
 		virtual ~Window();

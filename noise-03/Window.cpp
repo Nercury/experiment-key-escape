@@ -2,9 +2,9 @@
 
 #include <memory>
 #include <iostream>
+#include <cmath>
 
-#include <SDL2/SDL_opengl.h>
-#include <math.h>
+#include <key-opengl/gl.h>
 
 #include <key-math/Vector3.h>
 #include <key-math/Matrix.h>

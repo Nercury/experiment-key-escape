@@ -44,11 +44,37 @@ else()
 	endif()
 endif()
 
+### SDL
+if(WIN32)
+	if (MSVC)
+		# set up for MSVC
+		set(SDL_LIBRARY "${KEYLIB_LIBRARIES}/sdl-2/SDL.lib")
+		set(SDLMAIN_LIBRARY "${KEYLIB_LIBRARIES}/sdl-2/SDLmain.lib")
+	else()
+		# todo: set up for other compiler
+	endif()
+else()
+	# todo: set up for your platform
+endif()
+
+### GLEW
+add_definitions(-DGLEW_STATIC)
+if(WIN32)
+	if (MSVC)
+		set(GLEW_LIBRARY "${KEYLIB_LIBRARIES}/glew/glew32.lib")
+	else()
+		# todo: set up for other compiler
+	endif()
+else()
+	# todo: set up for your platform
+endif()
+
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${KEYLIB_INCLUDES})
 
 add_subdirectory(key-events)
 add_subdirectory(key-space)
+add_subdirectory(key-opengl)
 add_subdirectory(key-common)
 add_subdirectory(key-math)
 add_subdirectory(key-random)
