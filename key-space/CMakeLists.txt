@@ -7,8 +7,12 @@ project(key-space)
 
 add_library(key-space STATIC 
 	lib_key_space.h
-	ChunkContainer.h
-	ChunkContainer.cpp
+	BbLayer.h
+	BbLayer.cpp
+	PointBox.h
+	PointBox.cpp
+	RandomPointBoxFactory.h
+	RandomPointBoxFactory.cpp
 	)
 
 target_link_libraries(key-space

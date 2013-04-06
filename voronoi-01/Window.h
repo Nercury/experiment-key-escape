@@ -5,7 +5,7 @@
 #include <key-common/types.h>
 #include <SDL2/SDL.h>
 
-#include <key-random/SimplexNoise.h>
+#include <key-space/BbLayer.h>
 
 namespace voronoi01 {
 	class Window 
@@ -20,9 +20,25 @@ namespace voronoi01 {
 		int mouseY;
 		float zoom;
 
+		Vector3f centerPos;
+		float moveSpeed;
+
+		bool keyW;
+		bool keyA;
+		bool keyS;
+		bool keyD;
+		bool keySpace;
+		bool keyCtrl;
+
 		bool mouseLeftClicked;
 
-		key::random::SimplexNoise<float, 3, 256> noise3D;
+		std::shared_ptr<key::space::BbLayer> bb;
+
+		uint32_t previousTicks;
+
+		void drawXYZ(Vector3f position);
+		void drawArrow(const Vector3f& D, float length, const Vector3f color);
+		void drawWireframeBox();
 	public:
 		Window();
 		virtual ~Window();
