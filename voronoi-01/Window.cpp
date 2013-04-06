@@ -35,8 +35,10 @@ Window::Window()
 	cout << endl;
 	cout << "==========================================" << endl;
 	cout << endl;
-	cout << "Use MOUSE to move view." << endl;
+	cout << "Use MOUSE to rotate view." << endl;
 	cout << "Use MOUSEWHEEL to zoom." << endl;
+	cout << "Use WASD to move center point." << endl;
+	cout << "Use Space / Left Ctrl to move it Up /Down." << endl;
 	cout << endl;
 	cout << "==========================================" << endl;
 
