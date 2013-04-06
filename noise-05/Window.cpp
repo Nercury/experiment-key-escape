@@ -97,7 +97,6 @@ void Window::render() {
 
 	int size = 40;
 
-	//glEnable( GL_POINT_SMOOTH );
 	glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);
 	glEnable(GL_BLEND);
 	
@@ -133,5 +132,4 @@ void Window::postResize(const int16_t width, const int16_t height) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_DEPTH_TEST); // has depth
-	glDisable(GL_BLEND); // no blending
 }
