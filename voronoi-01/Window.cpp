@@ -9,6 +9,7 @@
 
 #include <key-math/Vector3.h>
 #include <key-math/Matrix.h>
+#include <key-space/PointBox.h>
 
 #include <key-space/RandomPointBoxFactory.h>
 
@@ -42,9 +43,9 @@ Window::Window()
 	cout << endl;
 	cout << "==========================================" << endl;
 
-	auto pointBoxFactory = make_shared<RandomPointBoxFactory>(15);
+	auto pointBoxFactory = shared_ptr<RandomPointBoxFactory>(new RandomPointBoxFactory(15, 12, 0.02));
 
-	bb = shared_ptr<BbLayer>(new BbLayer(pointBoxFactory, Vector3f(0, 0, 0), 500, 90));
+	bb = shared_ptr<BbLayer>(new BbLayer(pointBoxFactory, Vector3f(0, 0, 0), 500, 200));
 }
 
 Window::~Window() {
@@ -225,8 +226,8 @@ void Window::render() {
 	glTranslatef(-centerPos.x, -centerPos.y, -centerPos.z);
 	this->drawXYZ(Vector3f(0,0,0));
 	
-	//glEnable( GL_POINT_SMOOTH );
-	//glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);
+	glDisable( GL_POINT_SMOOTH );
+	glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);
 	glEnable(GL_BLEND);
 	
 	glColor4f(1, 0, 0, 0.5f);
@@ -247,7 +248,7 @@ void Window::render() {
 
 	glColor4f(0.8f, 0.8f, 0.8f, 0.3f);
 
-	// draw boxes
+	// draw obsolete boxes
 	for (auto it = bb->obsoletePointBoxes.cbegin(); it != bb->obsoletePointBoxes.cend(); ++it) {
 		glPushMatrix();
 
@@ -257,6 +258,28 @@ void Window::render() {
 		// box size
 		glScalef(bb->realBoxSize, bb->realBoxSize, bb->realBoxSize);
 		this->drawWireframeBox();
+
+		glPopMatrix();
+	}
+
+	glEnable( GL_POINT_SMOOTH );
+	glDisable(GL_BLEND);
+	
+	glColor3f(1, 1, 1);
+
+	// draw boxes
+	for (auto it = bb->randomPointBoxes.cbegin(); it != bb->randomPointBoxes.cend(); ++it) {
+		glPushMatrix();
+
+		// box position
+		auto boxPosition = bb->unrealToReal(it->first);
+		glTranslated(boxPosition.x, boxPosition.y, boxPosition.z);
+		// box points
+		glBegin(GL_POINTS);
+		for (auto pointIt = it->second->points.cbegin(); pointIt != it->second->points.cend(); ++pointIt) {
+			glVertex3f(pointIt->x, pointIt->y, pointIt->z);
+		}
+		glEnd();
 
 		glPopMatrix();
 	}

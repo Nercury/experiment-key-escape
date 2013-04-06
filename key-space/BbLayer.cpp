@@ -16,7 +16,7 @@ BbLayer::BbLayer(std::shared_ptr<RandomPointBoxFactory> randomPointBoxFactory, V
 {
 	unrealRelevanceSize = (int32_t)ceilf(realRelevanceRadius / (float)realBoxSize);
 	unrealRelevanceSizeSquared = unrealRelevanceSize * unrealRelevanceSize;
-	obsoleteBoxLimit = (unrealRelevanceSize * unrealRelevanceSize) * 4 * 5;
+	obsoleteBoxLimit = (unrealRelevanceSize * unrealRelevanceSize) * 4 * 11;
 	update();
 }
 
@@ -75,12 +75,21 @@ void BbLayer::update() {
 					Vector<int32_t, 3> cubePos(x, y, z);
 					auto existingCubeIt = this->randomPointBoxes.find(cubePos);
 					if (existingCubeIt == this->randomPointBoxes.end()) {
-						this->randomPointBoxes.insert(RandomBoxMapPair(
-							cubePos, 
-							this->randomPointBoxFactory->makeBoxWithRandomPoints(
-								unrealToReal(cubePos), realBoxSize
-							)
-						));
+						existingCubeIt = this->obsoletePointBoxes.find(cubePos);
+						if (existingCubeIt == this->obsoletePointBoxes.end()) {
+							this->randomPointBoxes.insert(RandomBoxMapPair(
+								cubePos, 
+								this->randomPointBoxFactory->makeBoxWithRandomPoints(
+									unrealToReal(cubePos), realBoxSize
+								)
+							));
+						} else {
+							this->randomPointBoxes.insert(RandomBoxMapPair(
+								cubePos, 
+								existingCubeIt->second
+							));
+							this->obsoletePointBoxes.erase(existingCubeIt);
+						}
 					}
 				}
 			}
