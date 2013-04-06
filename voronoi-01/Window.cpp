@@ -12,10 +12,10 @@
 
 using namespace std;
 using namespace key::random;
-using namespace noise05;
+using namespace voronoi01;
 
 Window::Window()
-	: noise4D(18)
+	: noise3D(18)
 {
 	mouseLeftClicked = false;
 	offsetX = 0.0f;
@@ -95,19 +95,20 @@ void Window::render() {
 	glRotatef(offsetY / 5.0f, 1, 0, 0);
 	glScalef(zoom, zoom, zoom);
 
-	int size = 40;
+	int size = 50;
 
 	//glEnable( GL_POINT_SMOOTH );
 	glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);
 	glEnable(GL_BLEND);
 	
+	glColor3f(1, 1, 1);
+
 	glBegin(GL_POINTS);
-	for (int z = -size; z <= size; z++) {
-		for (int y = -size; y <= size; y++) {
-			for (int x = -size; x <= size; x++) {
-				auto sample = noise4D.get(Vector<float, 4>(x, y, z, ticks / 170.31f) / 10.38);
-				if (sample > 0.3) {
-					glColor4f(1, 1, 1, sample);
+	for (int z = -size; z <= size; z+=1) {
+		for (int y = -size; y <= size; y+=1) {
+			for (int x = -size; x <= size; x+=1) {
+				auto sample = noise3D.get(Vector<float, 3>(x, y, z) / 3.38);
+				if (sample > 0.9) {
 					glVertex3i(x * 100.0, y * 100.0, z * 100.0);
 				}
 			}

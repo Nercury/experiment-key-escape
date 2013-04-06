@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <cmath>
+#include <iostream>
 
 #include <key-opengl/gl.h>
 
@@ -13,7 +14,11 @@ using namespace noise01;
 
 Window::Window()
 {
-	
+	cout << "==========================================" << endl;
+	cout << endl;
+	cout << "This is a truly random noise. Useless." << endl;
+	cout << endl;
+	cout << "==========================================" << endl;
 }
 
 Window::~Window() {

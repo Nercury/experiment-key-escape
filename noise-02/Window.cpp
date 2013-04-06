@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <cmath>
+#include <iostream>
 
 #include <key-opengl/gl.h>
 
@@ -15,7 +16,18 @@ using namespace noise02;
 Window::Window()
 	: noise(15)
 {
-
+	cout << "==========================================" << endl;
+	cout << endl;
+	cout << "This is a noise without interpolation." << endl;
+	cout << "Distribution is controlled by randomized" << endl;
+	cout << "permutation array and this is the base for" << endl;
+	cout << "the all other controlled noise types." << endl;
+	cout << endl;
+	cout << "The important point here is that given the" << endl;
+	cout << "x, y, z and initial SEED you will always" << endl;
+	cout << "receive the same value for that point." << endl;
+	cout << endl;
+	cout << "==========================================" << endl;
 }
 
 Window::~Window() {
