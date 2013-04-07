@@ -4,6 +4,7 @@
 
 #include "RandomPointBoxFactory.h"
 #include "PointBox.h"
+#include "CentroidBox.h"
 
 using namespace key::space;
 using namespace std;
@@ -39,14 +40,7 @@ Vector<int32_t, 3> BbLayer::realToUnreal(Vector3f boxCoordinates) {
 	return Vector<int32_t, 3>((int32_t)(boxCoordinates[0] / realBoxSize), (int32_t)(boxCoordinates[1] / realBoxSize), (int32_t)(boxCoordinates[2] / realBoxSize));
 }
 
-void BbLayer::update() {
-	Vector<int32_t, 3> newUnrealRelevanceCenter = realToUnreal(realRelevanceCenter);
-	if (this->randomPointBoxes.size() > 0 && newUnrealRelevanceCenter == unrealRelevanceCenter) {
-		return;
-	}
-
-	unrealRelevanceCenter = newUnrealRelevanceCenter;
-
+void BbLayer::makeOutOfBoundCubesObsolete() {
 	// remove existing cubes if out of bounds
 
 	for (auto it = randomPointBoxes.cbegin(); it != randomPointBoxes.cend(); ) {
@@ -62,10 +56,17 @@ void BbLayer::update() {
 			++it;
 		}
 	}
-	
-	// create new in-bounds cubes
 
-	cout << "update location to " << unrealRelevanceCenter.x << " " << unrealRelevanceCenter.y << " " << unrealRelevanceCenter.z << endl;
+	// clear out obsolete cubes if too many
+
+	if ( obsoletePointBoxes.size() > obsoleteBoxLimit) {
+		obsoletePointBoxes.clear();
+	}
+}
+
+void BbLayer::findNewInBoundsCubes() {
+		
+	// create new in-bounds cubes
 
 	for (int32_t x = unrealRelevanceCenter.x - unrealRelevanceSize; x < unrealRelevanceCenter.x + unrealRelevanceSize; x++) {
 		for (int32_t y = unrealRelevanceCenter.y - unrealRelevanceSize; y < unrealRelevanceCenter.y + unrealRelevanceSize; y++) {
@@ -77,11 +78,15 @@ void BbLayer::update() {
 					if (existingCubeIt == this->randomPointBoxes.end()) {
 						existingCubeIt = this->obsoletePointBoxes.find(cubePos);
 						if (existingCubeIt == this->obsoletePointBoxes.end()) {
+							auto centroidBox = make_shared<CentroidBox>();
+							this->randomPointBoxFactory->addRandomPointsToBox(
+								centroidBox->noisePoints,
+								unrealToReal(cubePos), realBoxSize
+							);
+
 							this->randomPointBoxes.insert(RandomBoxMapPair(
 								cubePos, 
-								this->randomPointBoxFactory->makeBoxWithRandomPoints(
-									unrealToReal(cubePos), realBoxSize
-								)
+								centroidBox
 							));
 						} else {
 							this->randomPointBoxes.insert(RandomBoxMapPair(
@@ -95,11 +100,36 @@ void BbLayer::update() {
 			}
 		}
 	}
+}
 
-	if ( obsoletePointBoxes.size() > obsoleteBoxLimit) {
-		obsoletePointBoxes.clear();
+void BbLayer::calculateCentroids() {
+	/*for (auto it = randomPointBoxes.cbegin(); it != randomPointBoxes.cend(); ) {
+		auto cubePos = it->first;
+		Vector3f diffFromCenter(cubePos.x + 0.5f - unrealRelevanceCenter.x, cubePos.y + 0.5f - unrealRelevanceCenter.y, cubePos.z + 0.5f - unrealRelevanceCenter.z);
+		if (diffFromCenter.length2() > unrealRelevanceSizeSquared - 0.5f) {
+			this->obsoletePointBoxes.insert(RandomBoxMapPair(
+				cubePos, 
+				it->second
+			));
+			randomPointBoxes.erase(it++);
+		} else {
+			++it;
+		}
+	}*/
+}
+
+void BbLayer::update() {
+	Vector<int32_t, 3> newUnrealRelevanceCenter = realToUnreal(realRelevanceCenter);
+	if (this->randomPointBoxes.size() > 0 && newUnrealRelevanceCenter == unrealRelevanceCenter) {
+		return;
 	}
+	unrealRelevanceCenter = newUnrealRelevanceCenter;
 
+	makeOutOfBoundCubesObsolete();
+	findNewInBoundsCubes();
+	calculateCentroids();
+
+	cout << "update location to " << unrealRelevanceCenter.x << " " << unrealRelevanceCenter.y << " " << unrealRelevanceCenter.z << endl;
 	cout << "obsolete cube count " << obsoletePointBoxes.size() << endl;
 	cout << "bb cube count " << randomPointBoxes.size() << endl;
 	

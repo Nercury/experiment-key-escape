@@ -10,6 +10,7 @@
 #include <key-math/Vector3.h>
 #include <key-math/Matrix.h>
 #include <key-space/PointBox.h>
+#include <key-space/CentroidBox.h>
 
 #include <key-space/RandomPointBoxFactory.h>
 
@@ -265,7 +266,7 @@ void Window::render() {
 	glEnable( GL_POINT_SMOOTH );
 	glDisable(GL_BLEND);
 	
-	glColor3f(1, 1, 1);
+	glColor3f(0.4, 0.4, 0.4);
 
 	// draw boxes
 	for (auto it = bb->randomPointBoxes.cbegin(); it != bb->randomPointBoxes.cend(); ++it) {
@@ -276,7 +277,7 @@ void Window::render() {
 		glTranslated(boxPosition.x, boxPosition.y, boxPosition.z);
 		// box points
 		glBegin(GL_POINTS);
-		for (auto pointIt = it->second->points.cbegin(); pointIt != it->second->points.cend(); ++pointIt) {
+		for (auto pointIt = it->second->noisePoints.points.cbegin(); pointIt != it->second->noisePoints.points.cend(); ++pointIt) {
 			glVertex3f(pointIt->x, pointIt->y, pointIt->z);
 		}
 		glEnd();

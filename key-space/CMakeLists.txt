@@ -9,6 +9,8 @@ add_library(key-space STATIC
 	lib_key_space.h
 	BbLayer.h
 	BbLayer.cpp
+	CentroidBox.h
+	CentroidBox.cpp
 	PointBox.h
 	PointBox.cpp
 	RandomPointBoxFactory.h

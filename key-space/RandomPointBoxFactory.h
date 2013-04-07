@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <vector>
 
 #include <key-math/Vector3.h>
@@ -20,7 +19,7 @@ namespace key {
 			int32_t subdivisionCount;
 
 			RandomPointBoxFactory(uint64_t seed, int32_t subdivisionCount, float scale);
-			std::shared_ptr<PointBox> makeBoxWithRandomPoints(Vector3f boxPosition, float boxSize);
+			void addRandomPointsToBox(PointBox & box, Vector3f boxPosition, float boxSize);
 		};
 
 	}

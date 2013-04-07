@@ -12,7 +12,7 @@ RandomPointBoxFactory::RandomPointBoxFactory(uint64_t seed, int32_t subdivisionC
 	this->noiseTransform *= scale;
 }
 
-std::shared_ptr<PointBox> RandomPointBoxFactory::makeBoxWithRandomPoints(Vector3f boxPosition, float boxSize) {
+void RandomPointBoxFactory::addRandomPointsToBox(PointBox & box, Vector3f boxPosition, float boxSize) {
 	
 	float subdivisionHalf = boxSize / (float)(subdivisionCount * 2);
 	float subdivisionSize = subdivisionHalf * 2;
@@ -22,8 +22,6 @@ std::shared_ptr<PointBox> RandomPointBoxFactory::makeBoxWithRandomPoints(Vector3
 	float sample;
 
 	int32_t x, y, z;
-
-	std::shared_ptr<PointBox> box = make_shared<PointBox>();
 
 	for (x = 0; x < subdivisionCount; x++) {
 		subPosition.x = subdivisionHalf + subdivisionSize * x;
@@ -35,11 +33,9 @@ std::shared_ptr<PointBox> RandomPointBoxFactory::makeBoxWithRandomPoints(Vector3
 				samplePoint = (boxPosition + subPosition).transform(noiseTransform);
 				sample = noise.get(samplePoint);
 				if (sample > 0.9f) {
-					box->add(subPosition);
+					box.add(subPosition);
 				}
 			}
 		}
 	}
-
-	return box;
 }

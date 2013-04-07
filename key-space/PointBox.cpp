@@ -2,7 +2,7 @@
 
 using namespace key::space;
 
-PointBox::PointBox() : centroidsCalculated(false) {
+PointBox::PointBox() {
 
 }
 

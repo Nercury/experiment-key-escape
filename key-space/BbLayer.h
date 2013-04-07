@@ -22,17 +22,20 @@ namespace key
 			}
 		};
 
-		class PointBox;
+		class CentroidBox;
 		class RandomPointBoxFactory;
 
-		typedef std::map<Vector<int32_t, 3>, std::shared_ptr<PointBox>, BbVectorCompare> RandomBoxMap;
-		typedef std::pair<Vector<int32_t, 3>, std::shared_ptr<PointBox>> RandomBoxMapPair;
+		typedef std::map<Vector<int32_t, 3>, std::shared_ptr<CentroidBox>, BbVectorCompare> RandomBoxMap;
+		typedef std::pair<Vector<int32_t, 3>, std::shared_ptr<CentroidBox>> RandomBoxMapPair;
 
 		class BbLayer
 		{
 		private:
 			std::shared_ptr<RandomPointBoxFactory> randomPointBoxFactory;
 
+			void makeOutOfBoundCubesObsolete();
+			void findNewInBoundsCubes();
+			void calculateCentroids();
 			void update();
 		public:
 			RandomBoxMap randomPointBoxes;
