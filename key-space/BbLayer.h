@@ -49,7 +49,7 @@ namespace key
 			BbLayer(std::shared_ptr<RandomPointBoxFactory> randomPointBoxFactory, Vector3f realRelevanceCenter, float realRelevanceRadius, float realBoxSize);
 			virtual ~BbLayer();
 
-			// FYI using these causes colosal precision loss
+			// using these causes colosal precision loss (FYI)
 			Vector3f unrealToReal(Vector<int32_t, 3> boxCoordinates);
 			Vector<int32_t, 3> realToUnreal(Vector3f boxCoordinates);
 

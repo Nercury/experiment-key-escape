@@ -45,7 +45,7 @@ Window::Window()
 
 	auto pointBoxFactory = shared_ptr<RandomPointBoxFactory>(new RandomPointBoxFactory(15, 12, 0.02));
 
-	bb = shared_ptr<BbLayer>(new BbLayer(pointBoxFactory, Vector3f(0, 0, 0), 500, 200));
+	bb = shared_ptr<BbLayer>(new BbLayer(pointBoxFactory, Vector3f(0, 0, 0), 700, 200));
 }
 
 Window::~Window() {
