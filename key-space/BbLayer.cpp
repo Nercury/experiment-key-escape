@@ -142,13 +142,15 @@ void BbLayer::calculateCentroids() {
 	CentroidBox * cb; // local ptr for loop
 	CentroidBox* centroidBoxes[8]; // boxes around the corner
 	Vector<int32_t, 3> cubePos, cornerPos, startCorner;
-	int iCorner, iBox;
+	vector<Vector3f> points; // points! helpfull, isn't it?
+	points.reserve(12);
+
+	int iCorner, iBox, centroidIndexInOtherBox;
 	float halfRealBox = realBoxSize / 2;
 
 	for (auto it = randomPointBoxes.cbegin(); it != randomPointBoxes.cend(); ++it) {
 		if (!it->second->centroidsCalculated) {
-			vector<Vector3f> points;
-
+			
 			cubePos = it->first;
 			cb = it->second.get();
 			for (iCorner = 0; iCorner < 8; iCorner++) {
@@ -171,13 +173,13 @@ void BbLayer::calculateCentroids() {
 					// for each box around this corner
 					// should find it 7 out of 8 times
 					for (iBox = 0; iBox < 8; iBox++) { // 8!!!
-						auto existingCentroidIndexInBox = CentroidBox::reverseMap[iBox];
+						centroidIndexInOtherBox = CentroidBox::reverseMap[iBox];
 						// getit (we hope getBoxesForUnreal4BoxCorner did the job right)
-						if (centroidBoxes[iBox]->cornerCalculated[existingCentroidIndexInBox]) {
+						if (centroidBoxes[iBox]->cornerCalculated[centroidIndexInOtherBox]) {
 							// if corner centroid already done, hurray!
 							// no need to get points and calculate anything
 							// just exit this loop... somehow
-							cornerPointBox = centroidBoxes[iBox]->cornerCentroids[existingCentroidIndexInBox];
+							cornerPointBox = centroidBoxes[iBox]->cornerCentroids[centroidIndexInOtherBox];
 							break;
 						}
 					}
@@ -189,7 +191,7 @@ void BbLayer::calculateCentroids() {
 
 						// collect the points
 						for (iBox = 0; iBox < 8; iBox++) { // 8!!!
-							auto centroidIndexInOtherBox = CentroidBox::reverseMap[iBox];
+							centroidIndexInOtherBox = CentroidBox::reverseMap[iBox];
 							auto boundingBoxOffset = CentroidBox::reverseCornerOffsets[iBox];
 							Vector3f pointBoundingBoxCorner(boundingBoxOffset[0] * halfRealBox, boundingBoxOffset[1] * halfRealBox, boundingBoxOffset[2] * halfRealBox);
 							centroidBoxes[iBox]->noisePoints.collectPointsInBounds(iBox, points, pointBoundingBoxCorner, halfRealBox);
@@ -207,6 +209,18 @@ void BbLayer::calculateCentroids() {
 					cb->cornerCentroids[iCorner] = cornerPointBox;
 				}
 			}
+
+			// corners done, now for the real thing!
+			points.clear();
+			for (iCorner = 0; iCorner < 8; iCorner++) { // 8!!!
+				auto boundingBoxOffset = CentroidBox::reverseCornerOffsets[iCorner];
+				Vector3f pointBoundingBoxCorner(boundingBoxOffset[0] * halfRealBox, boundingBoxOffset[1] * halfRealBox, boundingBoxOffset[2] * halfRealBox);
+				cb->cornerCentroids[iCorner]->collectPointsInBounds(iCorner, points, pointBoundingBoxCorner, halfRealBox);
+			}
+			
+			cb->centroids.points = points;
+			cb->centroids.combineNearestPoints(pointCombineDistance);
+
 			cb->centroidsCalculated = true;
 		}
 	}

@@ -28,5 +28,26 @@ void PointBox::collectPointsInBounds(int centroidCornerPointOffset, std::vector<
 }
 
 void PointBox::combineNearestPoints(float distance) {
+	auto squared = distance * distance;
+	std::vector<Vector3f> newPoints;
+	newPoints.reserve(this->points.size());
+	std::vector<bool> mergedPoints;
+	mergedPoints.reserve(10);
+	mergedPoints.resize(this->points.size(), false);
 
+	for (size_t i = 0; i < this->points.size(); i++) {
+		if (!mergedPoints[i]) {
+			auto point = this->points[i];
+			for (size_t iOther = i + 1; iOther < this->points.size(); iOther++) {
+				if (!mergedPoints[iOther]) {
+					if ((this->points[iOther] - point).length2() < squared) {
+						point = (point + this->points[iOther]) / 2;
+						mergedPoints[iOther] = true;
+					}
+				}
+			}
+			newPoints.push_back(point);
+		}
+	}
+	this->points = newPoints;
 }

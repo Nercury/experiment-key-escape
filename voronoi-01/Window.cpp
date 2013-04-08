@@ -28,7 +28,7 @@ Window::Window()
 	mouseY = 0;
 	zoom = 1.0f;
 
-	centerPos = Vector3f(0,0,0);
+	centerPos = Vector3f(180000, 1900000, 900000);
 	moveSpeed = 0.1f; // per tick
 
 	cout << "==========================================" << endl;
@@ -47,7 +47,7 @@ Window::Window()
 	auto pointBoxFactory = shared_ptr<RandomPointBoxFactory>(new RandomPointBoxFactory(15, 12, 0.02));
 
 	//bb = shared_ptr<BbLayer>(new BbLayer(pointBoxFactory, Vector3f(0, 0, 0), 700, 200));
-	bb = shared_ptr<BbLayer>(new BbLayer(pointBoxFactory, Vector3f(0, 0, 0), 210, 200));
+	bb = shared_ptr<BbLayer>(new BbLayer(pointBoxFactory, centerPos, 1000, 200));
 }
 
 Window::~Window() {
@@ -232,7 +232,7 @@ void Window::render() {
 	glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);
 	glEnable(GL_BLEND);
 	
-	glColor4f(1, 0, 0, 0.5f);
+	glColor4f(1, 0, 0, 0.1f);
 
 	// draw boxes
 	for (auto it = bb->randomPointBoxes.cbegin(); it != bb->randomPointBoxes.cend(); ++it) {
@@ -265,9 +265,9 @@ void Window::render() {
 	}
 
 	glEnable( GL_POINT_SMOOTH );
-	glDisable(GL_BLEND);
+	glEnable(GL_BLEND);
 	
-	glColor3f(1, 0.4, 0.4);
+	glColor4f(1, 0.4, 0.4, 0.4);
 
 	// draw initial points
 	for (auto it = bb->randomPointBoxes.cbegin(); it != bb->randomPointBoxes.cend(); ++it) {
@@ -286,9 +286,9 @@ void Window::render() {
 		glPopMatrix();
 	}
 
-	glEnable(GL_BLEND);
+	/*glDisable(GL_BLEND);
 
-	glColor4f(0.4, 0.4, 1.0, 0.4);
+	glColor3f(0.4, 0.4, 1.0);
 
 	auto realBoxHalf = bb->realBoxSize / 2.0f;
 
@@ -316,6 +316,31 @@ void Window::render() {
 				glPopMatrix();
 			}
 		}
+	}*/
+
+	glDisable(GL_BLEND);
+	
+	glColor3f(0.4, 1, 0.4);
+
+	// draw centroid points
+	for (auto it = bb->randomPointBoxes.cbegin(); it != bb->randomPointBoxes.cend(); ++it) {
+
+		if (it->second->centroidsCalculated) {
+			glPushMatrix();
+
+			// box position
+			auto boxPosition = bb->unrealToReal(it->first);
+			glTranslated(boxPosition.x, boxPosition.y, boxPosition.z);
+			// box points
+			glBegin(GL_POINTS);
+			for (auto pointIt = it->second->centroids.points.cbegin(); pointIt != it->second->centroids.points.cend(); ++pointIt) {
+				glVertex3f(pointIt->x, pointIt->y, pointIt->z);
+			}
+			glEnd();
+
+			glPopMatrix();
+		}
+
 	}
 
 	glPopMatrix();
