@@ -12,6 +12,8 @@ namespace key {
 
 			PointBox();
 			void add(Vector3f point);
+			void collectPointsInBounds(int centroidCornerPointOffset, std::vector<Vector3f> & points, const Vector3f & boundingCubeCorner, const float boundingCubeSize);
+			void combineNearestPoints(float distance);
 		};
 
 	}

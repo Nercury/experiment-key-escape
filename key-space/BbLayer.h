@@ -1,9 +1,11 @@
 #pragma once
 
 #include <map>
+#include <vector>
 #include <memory>
 
 #include <key-common/types.h>
+#include <key-math/Vector.h>
 #include <key-math/Vector3.h>
 
 namespace key
@@ -22,6 +24,7 @@ namespace key
 			}
 		};
 
+		class PointBox;
 		class CentroidBox;
 		class RandomPointBoxFactory;
 
@@ -33,6 +36,7 @@ namespace key
 		private:
 			std::shared_ptr<RandomPointBoxFactory> randomPointBoxFactory;
 
+			void getBoxesForUnreal4BoxCorner(CentroidBox* pointBoxes[], const Vector<int32_t, 3> & startCorner);
 			void makeOutOfBoundCubesObsolete();
 			void findNewInBoundsCubes();
 			void calculateCentroids();
@@ -44,6 +48,7 @@ namespace key
 			Vector3f realRelevanceCenter;
 			float realRelevanceRadius;
 			float realBoxSize;
+			float pointCombineDistance;
 			Vector<int32_t, 3> unrealRelevanceCenter;
 			int32_t unrealRelevanceSize;
 			int32_t unrealRelevanceSizeSquared;

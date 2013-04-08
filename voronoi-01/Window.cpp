@@ -46,7 +46,8 @@ Window::Window()
 
 	auto pointBoxFactory = shared_ptr<RandomPointBoxFactory>(new RandomPointBoxFactory(15, 12, 0.02));
 
-	bb = shared_ptr<BbLayer>(new BbLayer(pointBoxFactory, Vector3f(0, 0, 0), 700, 200));
+	//bb = shared_ptr<BbLayer>(new BbLayer(pointBoxFactory, Vector3f(0, 0, 0), 700, 200));
+	bb = shared_ptr<BbLayer>(new BbLayer(pointBoxFactory, Vector3f(0, 0, 0), 210, 200));
 }
 
 Window::~Window() {
@@ -266,9 +267,9 @@ void Window::render() {
 	glEnable( GL_POINT_SMOOTH );
 	glDisable(GL_BLEND);
 	
-	glColor3f(0.4, 0.4, 0.4);
+	glColor3f(1, 0.4, 0.4);
 
-	// draw boxes
+	// draw initial points
 	for (auto it = bb->randomPointBoxes.cbegin(); it != bb->randomPointBoxes.cend(); ++it) {
 		glPushMatrix();
 
@@ -283,6 +284,38 @@ void Window::render() {
 		glEnd();
 
 		glPopMatrix();
+	}
+
+	glEnable(GL_BLEND);
+
+	glColor4f(0.4, 0.4, 1.0, 0.4);
+
+	auto realBoxHalf = bb->realBoxSize / 2.0f;
+
+	// draw corner centroid points
+	for (auto it = bb->randomPointBoxes.cbegin(); it != bb->randomPointBoxes.cend(); ++it) {
+		for (int i = 0; i < 8; i++) {
+			if (it->second->cornerCalculated[i]) {
+				auto cornerPosition = bb->unrealToReal(it->first + Vector<int32_t, 3>(
+					CentroidBox::cornerOffsets[i][0], CentroidBox::cornerOffsets[i][1], CentroidBox::cornerOffsets[i][2]
+				)) - Vector3f(realBoxHalf);
+				glPushMatrix();
+
+				glTranslatef(cornerPosition[0], cornerPosition[1], cornerPosition[2]);
+
+				glPushMatrix();
+				glScalef(bb->realBoxSize, bb->realBoxSize, bb->realBoxSize);
+				this->drawWireframeBox();
+				glPopMatrix();
+
+				glBegin(GL_POINTS);
+				for (auto pIt = it->second->cornerCentroids[i]->points.cbegin(); pIt != it->second->cornerCentroids[i]->points.cend(); ++pIt) {
+					glVertex3f(pIt->x, pIt->y, pIt->z);
+				}
+				glEnd();
+				glPopMatrix();
+			}
+		}
 	}
 
 	glPopMatrix();

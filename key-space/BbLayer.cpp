@@ -15,9 +15,10 @@ BbLayer::BbLayer(std::shared_ptr<RandomPointBoxFactory> randomPointBoxFactory, V
 		realRelevanceRadius(realRelevanceRadius), 
 		realBoxSize(realBoxSize) 
 {
+	pointCombineDistance = realBoxSize / 3.0f;
 	unrealRelevanceSize = (int32_t)ceilf(realRelevanceRadius / (float)realBoxSize);
 	unrealRelevanceSizeSquared = unrealRelevanceSize * unrealRelevanceSize;
-	obsoleteBoxLimit = (unrealRelevanceSize * unrealRelevanceSize) * 4 * 11;
+	obsoleteBoxLimit = (unrealRelevanceSize * unrealRelevanceSize * unrealRelevanceSize) * 4 * 11;
 	update();
 }
 
@@ -48,7 +49,7 @@ void BbLayer::makeOutOfBoundCubesObsolete() {
 		Vector3f diffFromCenter(cubePos.x + 0.5f - unrealRelevanceCenter.x, cubePos.y + 0.5f - unrealRelevanceCenter.y, cubePos.z + 0.5f - unrealRelevanceCenter.z);
 		if (diffFromCenter.length2() > unrealRelevanceSizeSquared - 0.5f) {
 			this->obsoletePointBoxes.insert(RandomBoxMapPair(
-				cubePos, 
+				cubePos,
 				it->second
 			));
 			randomPointBoxes.erase(it++);
@@ -102,20 +103,113 @@ void BbLayer::findNewInBoundsCubes() {
 	}
 }
 
-void BbLayer::calculateCentroids() {
-	/*for (auto it = randomPointBoxes.cbegin(); it != randomPointBoxes.cend(); ) {
-		auto cubePos = it->first;
-		Vector3f diffFromCenter(cubePos.x + 0.5f - unrealRelevanceCenter.x, cubePos.y + 0.5f - unrealRelevanceCenter.y, cubePos.z + 0.5f - unrealRelevanceCenter.z);
-		if (diffFromCenter.length2() > unrealRelevanceSizeSquared - 0.5f) {
-			this->obsoletePointBoxes.insert(RandomBoxMapPair(
-				cubePos, 
-				it->second
-			));
-			randomPointBoxes.erase(it++);
+void BbLayer::getBoxesForUnreal4BoxCorner(CentroidBox* centroidBoxes[], const Vector<int32_t, 3> & startCorner) {
+
+	// first, get boxes!
+
+	Vector<int32_t, 3> boxPos;
+	RandomBoxMap::iterator boxIt;
+
+	for (int i = 0; i < 8; i++) { // 8!!!!
+		boxPos = startCorner + Vector<int32_t, 3>(CentroidBox::cornerOffsets[i]);
+		boxIt = this->randomPointBoxes.find(boxPos);
+		if (boxIt != this->randomPointBoxes.end()) {
+			centroidBoxes[i] = boxIt->second.get(); // I know what the hell I am doing
 		} else {
-			++it;
+			boxIt = this->obsoletePointBoxes.find(boxPos);
+			if (boxIt != this->obsoletePointBoxes.end()) {
+				centroidBoxes[i] = boxIt->second.get(); // I still know what the hell I am doing
+			} else {
+				// make a new box!
+				auto centroidBox = make_shared<CentroidBox>();
+				this->randomPointBoxFactory->addRandomPointsToBox(
+					centroidBox->noisePoints,
+					unrealToReal(boxPos), realBoxSize
+				);
+
+				this->obsoletePointBoxes.insert(RandomBoxMapPair(
+					boxPos, 
+					centroidBox
+				));
+
+				centroidBoxes[i] = centroidBox.get(); // and again, I hope
+			}
 		}
-	}*/
+	}
+}
+
+void BbLayer::calculateCentroids() {
+	CentroidBox * cb; // local ptr for loop
+	CentroidBox* centroidBoxes[8]; // boxes around the corner
+	Vector<int32_t, 3> cubePos, cornerPos, startCorner;
+	int iCorner, iBox;
+	float halfRealBox = realBoxSize / 2;
+
+	for (auto it = randomPointBoxes.cbegin(); it != randomPointBoxes.cend(); ++it) {
+		if (!it->second->centroidsCalculated) {
+			vector<Vector3f> points;
+
+			cubePos = it->first;
+			cb = it->second.get();
+			for (iCorner = 0; iCorner < 8; iCorner++) {
+				// if corner is not calculated
+				if (!cb->cornerCalculated[iCorner]) {
+					// the end result should be cornerPointBox != nullptr
+					shared_ptr<PointBox> cornerPointBox(nullptr);
+
+					points.clear();
+
+					// in case of 0, it is 0, 0, 0
+					// get centroid boxes around this corner
+					// actually, one of those boxes will be current one, 
+					// but we don't care, because this is complicated enough :/
+					cornerPos = cubePos + Vector<int32_t, 3>(CentroidBox::cornerOffsets[iCorner]);
+					startCorner = cornerPos - Vector<int32_t, 3>(1, 1, 1);
+					getBoxesForUnreal4BoxCorner(centroidBoxes, startCorner);
+					
+					// search for this corner centroid calculated on any other box
+					// for each box around this corner
+					// should find it 7 out of 8 times
+					for (iBox = 0; iBox < 8; iBox++) { // 8!!!
+						auto existingCentroidIndexInBox = CentroidBox::reverseMap[iBox];
+						// getit (we hope getBoxesForUnreal4BoxCorner did the job right)
+						if (centroidBoxes[iBox]->cornerCalculated[existingCentroidIndexInBox]) {
+							// if corner centroid already done, hurray!
+							// no need to get points and calculate anything
+							// just exit this loop... somehow
+							cornerPointBox = centroidBoxes[iBox]->cornerCentroids[existingCentroidIndexInBox];
+							break;
+						}
+					}
+
+					// this should always give calculated centroid corner if it was not found
+					if (cornerPointBox == nullptr) {
+
+						cornerPointBox = make_shared<PointBox>();
+
+						// collect the points
+						for (iBox = 0; iBox < 8; iBox++) { // 8!!!
+							auto centroidIndexInOtherBox = CentroidBox::reverseMap[iBox];
+							auto boundingBoxOffset = CentroidBox::reverseCornerOffsets[iBox];
+							Vector3f pointBoundingBoxCorner(boundingBoxOffset[0] * halfRealBox, boundingBoxOffset[1] * halfRealBox, boundingBoxOffset[2] * halfRealBox);
+							centroidBoxes[iBox]->noisePoints.collectPointsInBounds(iBox, points, pointBoundingBoxCorner, halfRealBox);
+							centroidBoxes[iBox]->cornerCentroids[centroidIndexInOtherBox] = cornerPointBox;
+							centroidBoxes[iBox]->cornerCalculated[centroidIndexInOtherBox] = true; // SOON(TM)!
+						}
+
+						// finally we have the fucking points
+						cornerPointBox->points = points;
+
+						cornerPointBox->combineNearestPoints(pointCombineDistance);
+					}
+
+					cb->cornerCalculated[iCorner] = true;
+					cb->cornerCentroids[iCorner] = cornerPointBox;
+				}
+			}
+			cb->centroidsCalculated = true;
+		}
+	}
 }
 
 void BbLayer::update() {
