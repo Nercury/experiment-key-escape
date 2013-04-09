@@ -1,6 +1,6 @@
 add_executable(noise-01
 	Window.h
-	WIndow.cpp
+	Window.cpp
 	main.cpp)
 	
 ### SDL
