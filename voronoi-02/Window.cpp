@@ -16,7 +16,7 @@
 
 using namespace std;
 using namespace key::space;
-using namespace voronoi01;
+using namespace voronoi02;
 
 Window::Window()
 	: keyW(false), keyA(false), keyS(false), keyD(false), keySpace(false), keyCtrl(false), previousTicks(0)

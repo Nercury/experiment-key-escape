@@ -10,6 +10,8 @@
 
 namespace key {
 	namespace space {
+		
+		// [2013.03.24 15:20:06] Nerijus: I will try to randomly generate some cubes to make myself happy
 
 		class CentroidBox {
 		public:

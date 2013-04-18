@@ -15,11 +15,11 @@ BbLayer::BbLayer(std::shared_ptr<RandomPointBoxFactory> randomPointBoxFactory, V
 		realRelevanceRadius(realRelevanceRadius), 
 		realBoxSize(realBoxSize) 
 {
-	pointCombineDistance = realBoxSize / 3.0f;
-	unrealRelevanceSize = (int32_t)ceilf(realRelevanceRadius / (float)realBoxSize);
-	unrealRelevanceSizeSquared = unrealRelevanceSize * unrealRelevanceSize;
-	obsoleteBoxLimit = (unrealRelevanceSize * unrealRelevanceSize * unrealRelevanceSize) * 4 * 11;
-	update();
+	this->pointCombineDistance = this->realBoxSize / 7.0f;
+	this->unrealRelevanceSize = (int32_t)ceilf(this->realRelevanceRadius / (float)this->realBoxSize);
+	this->unrealRelevanceSizeSquared = this->unrealRelevanceSize * this->unrealRelevanceSize;
+	this->obsoleteBoxLimit = (this->unrealRelevanceSize * this->unrealRelevanceSize * this->unrealRelevanceSize) * 4 * 11;
+	this->update();
 }
 
 BbLayer::~BbLayer() {
@@ -27,29 +27,37 @@ BbLayer::~BbLayer() {
 }
 
 void BbLayer::changeRelevanceCenter(Vector3f newCenter) {
-	if ((newCenter - realRelevanceCenter).length() >= realBoxSize) {
-		realRelevanceCenter = newCenter;
-		update();
+	if ((newCenter - this->realRelevanceCenter).length() >= this->realBoxSize) {
+		this->realRelevanceCenter = newCenter;
+		
+		cout << "Update RC: " << newCenter.x << " " << newCenter.y << " " << newCenter.z << endl;
+
+		this->update();
 	}
 }
 
 Vector3f BbLayer::unrealToReal(Vector<int32_t, 3> boxCoordinates) {
-	return Vector3f((float)boxCoordinates[0] * realBoxSize, (float)boxCoordinates[1] * realBoxSize, (float)boxCoordinates[2] * realBoxSize);
+	return Vector3f((float)boxCoordinates[0] * this->realBoxSize, (float)boxCoordinates[1] * this->realBoxSize, (float)boxCoordinates[2] * this->realBoxSize);
 }
 
 Vector<int32_t, 3> BbLayer::realToUnreal(Vector3f boxCoordinates) {
-	return Vector<int32_t, 3>((int32_t)(boxCoordinates[0] / realBoxSize), (int32_t)(boxCoordinates[1] / realBoxSize), (int32_t)(boxCoordinates[2] / realBoxSize));
+	return Vector<int32_t, 3>((int32_t)(boxCoordinates[0] / this->realBoxSize), (int32_t)(boxCoordinates[1] / this->realBoxSize), (int32_t)(boxCoordinates[2] / this->realBoxSize));
 }
+
+static double rnd() {return double(rand())/RAND_MAX;}
 
 void BbLayer::makeOutOfBoundCubesObsolete() {
 	// remove existing cubes if out of bounds
 
-	for (auto it = randomPointBoxes.cbegin(); it != randomPointBoxes.cend(); ) {
-		auto cubePos = it->first;
-		Vector3f diffFromCenter(cubePos.x + 0.5f - unrealRelevanceCenter.x, cubePos.y + 0.5f - unrealRelevanceCenter.y, cubePos.z + 0.5f - unrealRelevanceCenter.z);
-		if (diffFromCenter.length2() > unrealRelevanceSizeSquared - 0.5f) {
+	Vector3f diffFromCenter;
+	Vector3f half(0.5f);
+
+	for (auto it = this->randomPointBoxes.cbegin(); it != this->randomPointBoxes.cend(); ) {
+		diffFromCenter = (it->first - this->unrealRelevanceCenter);
+		
+		if (diffFromCenter.length2() > this->unrealRelevanceSizeSquared - 0.7) {
 			this->obsoletePointBoxes.insert(RandomBoxMapPair(
-				cubePos,
+				it->first,
 				it->second
 			));
 			randomPointBoxes.erase(it++);
@@ -60,29 +68,61 @@ void BbLayer::makeOutOfBoundCubesObsolete() {
 
 	// clear out obsolete cubes if too many
 
-	if ( obsoletePointBoxes.size() > obsoleteBoxLimit) {
-		obsoletePointBoxes.clear();
+	if ( this->obsoletePointBoxes.size() > this->obsoleteBoxLimit) {
+		this->obsoletePointBoxes.clear();
 	}
+
+	/*double x_min=-1,x_max=1;
+	double y_min=-1,y_max=1;
+	double z_min=-1,z_max=1;
+	double cvol=(x_max-x_min)*(y_max-y_min)*(x_max-x_min);
+	const int n_x=6,n_y=6,n_z=6;
+	const int particles=20;
+	double x,y,z;
+
+	// Create a container with the geometry given above, and make it
+    // non-periodic in each of the three coordinates. Allocate space for
+    // eight particles within each computational block
+    voro::container con(x_min,x_max,y_min,y_max,z_min,z_max,n_x,n_y,n_z,
+                  false,false,false,8);
+ 
+	// Randomly add particles into the container
+	for(int i=0;i<particles;i++) {
+		 x=x_min+rnd()*(x_max-x_min);
+		 y=y_min+rnd()*(y_max-y_min);
+		 z=z_min+rnd()*(z_max-z_min);
+		 con.put(i,x,y,z);
+	}
+
+	double vvol=con.sum_cell_volumes();
+        printf("Container volume : %g\n"
+               "Voronoi volume   : %g\n"
+               "Difference       : %g\n",cvol,vvol,vvol-cvol);*/
+
 }
 
 void BbLayer::findNewInBoundsCubes() {
 		
 	// create new in-bounds cubes
 
-	for (int32_t x = unrealRelevanceCenter.x - unrealRelevanceSize; x < unrealRelevanceCenter.x + unrealRelevanceSize; x++) {
-		for (int32_t y = unrealRelevanceCenter.y - unrealRelevanceSize; y < unrealRelevanceCenter.y + unrealRelevanceSize; y++) {
-			for (int32_t z = unrealRelevanceCenter.z - unrealRelevanceSize; z < unrealRelevanceCenter.z + unrealRelevanceSize; z++) {
-				Vector3f diffFromCenter(x + 0.5f - unrealRelevanceCenter.x, y + 0.5f - unrealRelevanceCenter.y, z + 0.5f - unrealRelevanceCenter.z);
-				if (diffFromCenter.length2() <= unrealRelevanceSizeSquared - 0.5f) {
-					Vector<int32_t, 3> cubePos(x, y, z);
-					auto existingCubeIt = this->randomPointBoxes.find(cubePos);
+	Vector3f diffFromCenter;
+	Vector<int32_t, 3> cubePos;
+	RandomBoxMap::iterator existingCubeIt;
+	Vector3f half(0.5f);
+
+	for (cubePos.x = this->unrealRelevanceCenter.x - this->unrealRelevanceSize; cubePos.x < this->unrealRelevanceCenter.x + this->unrealRelevanceSize; cubePos.x++) {
+		for (cubePos.y = this->unrealRelevanceCenter.y - this->unrealRelevanceSize; cubePos.y < this->unrealRelevanceCenter.y + this->unrealRelevanceSize; cubePos.y++) {
+			for (cubePos.z = this->unrealRelevanceCenter.z - this->unrealRelevanceSize; cubePos.z < this->unrealRelevanceCenter.z + this->unrealRelevanceSize; cubePos.z++) {
+				diffFromCenter = (cubePos - this->unrealRelevanceCenter);
+				if (diffFromCenter.length2() <= this->unrealRelevanceSizeSquared - 0.7) {
+					existingCubeIt = this->randomPointBoxes.find(cubePos);
 					if (existingCubeIt == this->randomPointBoxes.end()) {
 						existingCubeIt = this->obsoletePointBoxes.find(cubePos);
 						if (existingCubeIt == this->obsoletePointBoxes.end()) {
 							auto centroidBox = make_shared<CentroidBox>();
 							this->randomPointBoxFactory->addRandomPointsToBox(
 								centroidBox->noisePoints,
-								unrealToReal(cubePos), realBoxSize
+								this->unrealToReal(cubePos), this->realBoxSize
 							);
 
 							this->randomPointBoxes.insert(RandomBoxMapPair(
@@ -124,7 +164,7 @@ void BbLayer::getBoxesForUnreal4BoxCorner(CentroidBox* centroidBoxes[], const Ve
 				auto centroidBox = make_shared<CentroidBox>();
 				this->randomPointBoxFactory->addRandomPointsToBox(
 					centroidBox->noisePoints,
-					unrealToReal(boxPos), realBoxSize
+					this->unrealToReal(boxPos), this->realBoxSize
 				);
 
 				this->obsoletePointBoxes.insert(RandomBoxMapPair(
@@ -146,9 +186,9 @@ void BbLayer::calculateCentroids() {
 	points.reserve(12);
 
 	int iCorner, iBox, centroidIndexInOtherBox;
-	float halfRealBox = realBoxSize / 2;
+	float halfRealBox = this->realBoxSize / 2;
 
-	for (auto it = randomPointBoxes.cbegin(); it != randomPointBoxes.cend(); ++it) {
+	for (auto it = this->randomPointBoxes.cbegin(); it != this->randomPointBoxes.cend(); ++it) {
 		if (!it->second->centroidsCalculated) {
 			
 			cubePos = it->first;
@@ -167,7 +207,7 @@ void BbLayer::calculateCentroids() {
 					// but we don't care, because this is complicated enough :/
 					cornerPos = cubePos + Vector<int32_t, 3>(CentroidBox::cornerOffsets[iCorner]);
 					startCorner = cornerPos - Vector<int32_t, 3>(1, 1, 1);
-					getBoxesForUnreal4BoxCorner(centroidBoxes, startCorner);
+					this->getBoxesForUnreal4BoxCorner(centroidBoxes, startCorner);
 					
 					// search for this corner centroid calculated on any other box
 					// for each box around this corner
@@ -202,7 +242,7 @@ void BbLayer::calculateCentroids() {
 						// finally we have the fucking points
 						cornerPointBox->points = points;
 
-						cornerPointBox->combineNearestPoints(pointCombineDistance);
+						cornerPointBox->combineNearestPoints(this->pointCombineDistance);
 					}
 
 					cb->cornerCalculated[iCorner] = true;
@@ -219,7 +259,9 @@ void BbLayer::calculateCentroids() {
 			}
 			
 			cb->centroids.points = points;
-			cb->centroids.combineNearestPoints(pointCombineDistance);
+			cb->centroids.combineNearestPoints(this->pointCombineDistance);
+
+			//cout << "NUM of centroids in a cube: " << cb->centroids.points.size() << endl;
 
 			cb->centroidsCalculated = true;
 		}
@@ -227,18 +269,20 @@ void BbLayer::calculateCentroids() {
 }
 
 void BbLayer::update() {
-	Vector<int32_t, 3> newUnrealRelevanceCenter = realToUnreal(realRelevanceCenter);
-	if (this->randomPointBoxes.size() > 0 && newUnrealRelevanceCenter == unrealRelevanceCenter) {
+	Vector<int32_t, 3> newUnrealRelevanceCenter = this->realToUnreal(this->realRelevanceCenter);
+	if (this->randomPointBoxes.size() > 0 && newUnrealRelevanceCenter == this->unrealRelevanceCenter) {
 		return;
 	}
-	unrealRelevanceCenter = newUnrealRelevanceCenter;
+	this->unrealRelevanceCenter = newUnrealRelevanceCenter;
 
-	makeOutOfBoundCubesObsolete();
-	findNewInBoundsCubes();
-	calculateCentroids();
+	//cout << "Unreal C: " << newUnrealRelevanceCenter.x << " " << newUnrealRelevanceCenter.y << " " << newUnrealRelevanceCenter.z << endl;
 
-	cout << "update location to " << unrealRelevanceCenter.x << " " << unrealRelevanceCenter.y << " " << unrealRelevanceCenter.z << endl;
-	cout << "obsolete cube count " << obsoletePointBoxes.size() << endl;
-	cout << "bb cube count " << randomPointBoxes.size() << endl;
+	this->makeOutOfBoundCubesObsolete();
+	this->findNewInBoundsCubes();
+	this->calculateCentroids();
+
+	//cout << "update location to " << unrealRelevanceCenter.x << " " << unrealRelevanceCenter.y << " " << unrealRelevanceCenter.z << endl;
+	//cout << "obsolete cube count " << obsoletePointBoxes.size() << endl;
+	//cout << "bb cube count " << randomPointBoxes.size() << endl;
 	
 }

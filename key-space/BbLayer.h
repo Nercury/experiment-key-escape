@@ -4,6 +4,8 @@
 #include <vector>
 #include <memory>
 
+#include <voro/voro++.hh>
+
 #include <key-common/types.h>
 #include <key-math/Vector.h>
 #include <key-math/Vector3.h>

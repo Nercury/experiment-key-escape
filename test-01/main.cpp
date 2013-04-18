@@ -1,23 +1,25 @@
-#include <iostream>
+//#include <functional>
 
-using namespace std;
+//using namespace std;
 
-float doStuff();
+template<typename ... Args>
+struct Event {
+};
 
 int main(int argc, char* argv[])
 {
-	cout << doStuff() << endl;
+	//auto a = new other();
+
+	/*std::function<void(std::string)> f;
+	std::function<void(std::string)>::*/
+
+	Event<int> e;
+
+	/*e.addHandler(std::bind(&other::myhandler, a, std::placeholders::_1));*/
+
+	//e.invoke("world");
+
+	//delete a;
 
 	return 0;
-}
-
-float doStuff() {
-	//PerlinNoise<3> noise(15);
-
-	float pos[3];
-	pos[0] = 1.0f;
-	pos[1] = 2.0f;
-	pos[2] = 1.1f;
-
-	return 3;//noise.get(pos);
 }

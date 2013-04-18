@@ -5,6 +5,13 @@ project(key-space)
 # 	add_definitions(-DDYNAMIC_LIB)
 #endif(WIN32)
 
+### Voro++
+if(WIN32)
+	if (MSVC)
+		set(VORO_LIBRARY "${KEYLIB_LIBRARIES}/voro/voro-cpp.lib")
+	endif()
+endif()
+
 add_library(key-space STATIC 
 	lib_key_space.h
 	BbLayer.h
@@ -18,4 +25,5 @@ add_library(key-space STATIC
 	)
 
 target_link_libraries(key-space
+		${VORO_LIBRARY}
 	)
