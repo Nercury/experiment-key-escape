@@ -11,8 +11,7 @@
 #include <key-math/Matrix.h>
 #include <key-space/PointBox.h>
 #include <key-space/CentroidBox.h>
-
-#include <key-space/RandomPointBoxFactory.h>
+#include <key-space/CentroidBoxManager.h>
 
 using namespace std;
 using namespace key::space;
@@ -44,7 +43,9 @@ Window::Window()
 	cout << endl;
 	cout << "==========================================" << endl;
 
-	auto pointBoxFactory = shared_ptr<RandomPointBoxFactory>(new RandomPointBoxFactory(15, 17, 0.03));
+	//RelevantVoxels<CentroidBox> rv;
+
+	auto pointBoxFactory = shared_ptr<CentroidBoxManager>(new CentroidBoxManager(15, 17, 0.03));
 
 	bb = shared_ptr<BbLayer>(new BbLayer(pointBoxFactory, centerPos, 1000, 200));
 	//bb = shared_ptr<BbLayer>(new BbLayer(pointBoxFactory, centerPos, 1000, 200));

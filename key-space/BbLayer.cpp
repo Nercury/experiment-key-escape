@@ -2,14 +2,14 @@
 
 #include <iostream>
 
-#include "RandomPointBoxFactory.h"
+#include "CentroidBoxManager.h"
 #include "PointBox.h"
 #include "CentroidBox.h"
 
 using namespace key::space;
 using namespace std;
 
-BbLayer::BbLayer(std::shared_ptr<RandomPointBoxFactory> randomPointBoxFactory, Vector3f realRelevanceCenter, float realRelevanceRadius, float realBoxSize)
+BbLayer::BbLayer(std::shared_ptr<CentroidBoxManager> randomPointBoxFactory, Vector3f realRelevanceCenter, float realRelevanceRadius, float realBoxSize)
 	: randomPointBoxFactory(randomPointBoxFactory), 
 		realRelevanceCenter(realRelevanceCenter), 
 		realRelevanceRadius(realRelevanceRadius), 

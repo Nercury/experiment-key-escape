@@ -14,7 +14,7 @@ namespace noise02 {
 		int16_t width;
 		int16_t height;
 
-		key::random::FlatNoise<float, 3, 256> noise;
+		key::random::FlatNoise<float, 3, 18> noise;
 	public:
 		Window();
 		virtual ~Window();

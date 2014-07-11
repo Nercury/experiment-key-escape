@@ -26,9 +26,24 @@ namespace key
 			}
 		};
 
+		template<class ContainerT>
+		class VoxelBbLayer {
+		public:
+
+		private:
+			typedef std::map<Vector<int32_t, 3>, std::shared_ptr<ContainerT>, BbVectorCompare> RandomBoxMap;
+			typedef std::pair<Vector<int32_t, 3>, std::shared_ptr<ContainerT>> RandomBoxMapPair;
+
+			void update();
+		};
+
+
+
+		
+
 		class PointBox;
 		class CentroidBox;
-		class RandomPointBoxFactory;
+		class CentroidBoxManager;
 
 		typedef std::map<Vector<int32_t, 3>, std::shared_ptr<CentroidBox>, BbVectorCompare> RandomBoxMap;
 		typedef std::pair<Vector<int32_t, 3>, std::shared_ptr<CentroidBox>> RandomBoxMapPair;
@@ -36,7 +51,7 @@ namespace key
 		class BbLayer
 		{
 		private:
-			std::shared_ptr<RandomPointBoxFactory> randomPointBoxFactory;
+			std::shared_ptr<CentroidBoxManager> randomPointBoxFactory;
 
 			void getBoxesForUnreal4BoxCorner(CentroidBox* pointBoxes[], const Vector<int32_t, 3> & startCorner);
 			void makeOutOfBoundCubesObsolete();
@@ -56,7 +71,7 @@ namespace key
 			int32_t unrealRelevanceSizeSquared;
 			int32_t obsoleteBoxLimit;
 
-			BbLayer(std::shared_ptr<RandomPointBoxFactory> randomPointBoxFactory, Vector3f realRelevanceCenter, float realRelevanceRadius, float realBoxSize);
+			BbLayer(std::shared_ptr<CentroidBoxManager> randomPointBoxFactory, Vector3f realRelevanceCenter, float realRelevanceRadius, float realBoxSize);
 			virtual ~BbLayer();
 
 			// using these causes colosal precision loss (FYI)

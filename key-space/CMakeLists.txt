@@ -18,10 +18,10 @@ add_library(key-space STATIC
 	BbLayer.cpp
 	CentroidBox.h
 	CentroidBox.cpp
+	CentroidBoxManager.h
+	CentroidBoxManager.cpp
 	PointBox.h
 	PointBox.cpp
-	RandomPointBoxFactory.h
-	RandomPointBoxFactory.cpp
 	)
 
 target_link_libraries(key-space
