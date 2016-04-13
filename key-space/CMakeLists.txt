@@ -6,13 +6,13 @@ project(key-space)
 #endif(WIN32)
 
 ### Voro++
-if(WIN32)
-	if (MSVC)
-		set(VORO_LIBRARY "${KEYLIB_LIBRARIES}/voro/voro-cpp.lib")
-	endif()
-endif()
+#if(WIN32)
+#	if (MSVC)
+#		set(VORO_LIBRARY "${KEYLIB_LIBRARIES}/voro/voro-cpp.lib")
+#	endif()
+#endif()
 
-add_library(key-space STATIC 
+add_library(key-space STATIC
 	lib_key_space.h
 	BbLayer.h
 	BbLayer.cpp

@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-#include <voro/voro++.hh>
+//#include <voro/voro++.hh>
 
 #include <key-common/types.h>
 #include <key-math/Vector.h>
@@ -16,7 +16,7 @@ namespace key
 	{
 		struct BbVectorCompare
 		{
-			inline bool operator() (const Vector<int32_t, 3> & a, const Vector<int32_t, 3> & b)
+			inline bool operator() (const Vector<int32_t, 3> & a, const Vector<int32_t, 3> & b) const
 			{
 				return a.x != b.x ? a.x > b.x : (
 					a.y != b.y ? a.y > b.y : (
@@ -39,7 +39,7 @@ namespace key
 
 
 
-		
+
 
 		class PointBox;
 		class CentroidBox;

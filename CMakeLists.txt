@@ -1,6 +1,9 @@
 project(key)
 
 cmake_minimum_required(VERSION 2.8)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 set(KEYLIB_PROJECT
 	"${CMAKE_SOURCE_DIR}/..")
@@ -25,15 +28,16 @@ elseif(NOT APPLE)
 		message("32-bit Linux")
 	endif()
 else()
-	message("Sytem architecture detection may be incorrect for APPLE")
 	set(KEYLIB_LIB_ARCH "x64")
 endif()
-	
+
 # set library dir
 if (MSVC)
 	set(WITH_SHARED_LIBS NO)
 	set(KEYLIB_LIBRARIES
 		"${KEYLIB_PROJECT}/third-party-lib/windows/${KEYLIB_LIB_ARCH}-vc110/${CMAKE_CFG_INTDIR}")
+elseif(APPLE)
+	set(KEYLIB_LIBRARIES "${KEYLIB_PROJECT}/third-party-lib/apple/${KEYLIB_LIB_ARCH}-clang")
 else()
 	if (WIN32)
 		set(KEYLIB_LIBRARIES
@@ -48,11 +52,15 @@ endif()
 if(WIN32)
 	if (MSVC)
 		# set up for MSVC
-		set(SDL_LIBRARY "${KEYLIB_LIBRARIES}/sdl-2/SDL.lib")
+		set(SDL2_LIBRARY "${KEYLIB_LIBRARIES}/sdl-2/SDL.lib")
 		set(SDLMAIN_LIBRARY "${KEYLIB_LIBRARIES}/sdl-2/SDLmain.lib")
 	else()
 		# todo: set up for other compiler
 	endif()
+elseif(APPLE)
+	find_package(SDL2 REQUIRED)
+	include_directories(${SDL2_INCLUDE_DIR})
+	set(SDLMAIN_LIBRARY "${SDL2_LIBRARY}")
 else()
 	# todo: set up for your platform
 endif()
@@ -65,8 +73,21 @@ if(WIN32)
 	else()
 		# todo: set up for other compiler
 	endif()
+elseif(APPLE)
+	find_package(GLEW REQUIRED)
+	if (GLEW_FOUND)
+    include_directories(${GLEW_INCLUDE_DIRS})
+		link_libraries(${GLEW_LIBRARIES})
+	endif()
 else()
 	# todo: set up for your platform
+endif()
+
+if(APPLE)
+	set(Boost_USE_STATIC_LIBS        ON)
+	set(Boost_USE_MULTITHREADED      ON)
+	set(Boost_USE_STATIC_RUNTIME    OFF)
+	find_package(Boost 1.60.0 COMPONENTS random)
 endif()
 
 include_directories(${CMAKE_SOURCE_DIR})

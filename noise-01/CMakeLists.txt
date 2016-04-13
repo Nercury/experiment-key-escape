@@ -2,7 +2,7 @@ add_executable(noise-01
 	Window.h
 	Window.cpp
 	main.cpp)
-	
+
 ### SDL
 if(WIN32)
 	if (MSVC)
